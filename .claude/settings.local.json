@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f analysisUtils.ts babybaseData.ts communicationStore.ts demoData.ts dummyData.ts email.ts fortune.ts gameScenarios.ts gameStore.ts gmail.ts google-calendar.ts interviewship-email.ts interviewship-onboarding.ts line.ts pushNotification.ts resend.ts staffing-email.ts staffing-exports.ts staffing-reminder.ts staffing-roster.ts store.ts)",
+      "Bash(rsync -a --exclude='node_modules' --exclude='.next' --exclude='.git' --exclude='.vercel' --exclude='tmp_thumbnails' --exclude='*.tsbuildinfo' --exclude='.DS_Store' --exclude='lint*.txt' --exclude='lint_results.json' --exclude='final_lint.txt' --exclude='ai-debug.log' --exclude='Ehime_Base_*.docx' --exclude='public/videos' --exclude='public/game' --exclude='public/rpg' --exclude='screenshots' \"/Users/yuyu24/2ndBrain/Ehime Base app/ehime-base-app/\" \"/Users/yuyu24/2ndBrain/Ehime Base app/e-ラーニング/\")"
+    ]
+  }
+}
