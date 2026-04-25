@@ -42,6 +42,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     const isAdminDashboard = pathname?.startsWith('/admin');
     const isPublicPage = pathname === '/' || pathname === '/welcome' || pathname?.startsWith('/login') || pathname?.startsWith('/auth/reset-password');
+    // reskill pages have their own layout (reskill/layout.tsx) — bypass LayoutWrapper sidebar
+    const isReskillPage = pathname?.startsWith('/reskill');
     const isCommunication = false;
 
     const [mounted, setMounted] = React.useState(false);
@@ -109,7 +111,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         </nav>
     );
 
-    if (isPublicPage || isAdminDashboard) {
+    if (isPublicPage || isAdminDashboard || isReskillPage) {
         return <ErrorBoundary>{children}</ErrorBoundary>;
     }
 

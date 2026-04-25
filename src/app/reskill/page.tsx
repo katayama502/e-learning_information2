@@ -346,18 +346,6 @@ export default function ReskillDashboardPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20 w-full min-w-0 overflow-x-hidden">
-            {/* Header */}
-            <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                        <div className="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-100">
-                            <BookOpen size={24} />
-                        </div>
-                        <h1 className="text-xl font-black tracking-tighter text-slate-900">リスキル大学</h1>
-                    </div>
-                </div>
-            </header>
-
             <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
                 {/* Stats Overview */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
