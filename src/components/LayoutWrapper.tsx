@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { GraduationCap, LogOut, LogIn, Menu, ShieldCheck, PanelLeftClose, PanelLeftOpen, Loader2 } from 'lucide-react';
+import { GraduationCap, LogOut, LogIn, Menu, ShieldCheck, PanelLeftClose, Loader2, Layout, BookOpen } from 'lucide-react';
 import { useAppStore } from '@/lib/appStore';
 import ScrollToTop from './ScrollToTop';
 import { createClient } from '@/utils/supabase/client';
@@ -14,6 +14,7 @@ interface NavItem {
     name: string;
     icon: any;
     href: string;
+    exact?: boolean;
     badge?: number;
 }
 
@@ -29,7 +30,8 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const router = useRouter();
 
     const allNavItems: NavItem[] = [
-        { name: 'リスキル大学', icon: GraduationCap, href: '/reskill' },
+        { name: 'Dashboard', icon: Layout, href: '/reskill', exact: true },
+        { name: 'Courses', icon: BookOpen, href: '/reskill/courses' },
         { name: '管理者画面', icon: ShieldCheck, href: '/admin/elearning' },
     ];
 
@@ -88,7 +90,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     const renderNavItems = (onClick?: () => void, collapsed?: boolean) => (
         <nav className={`flex-1 ${collapsed ? 'p-2' : 'p-4'} space-y-1 overflow-y-auto`}>
             {navItems.map((item) => {
-                const isActive = pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href));
+                const isActive = item.exact
+                    ? pathname === item.href
+                    : (pathname === item.href || (item.href !== '/' && pathname?.startsWith(item.href)));
                 return (
                     <Link
                         key={item.href}
