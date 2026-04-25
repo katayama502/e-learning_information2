@@ -4,9 +4,9 @@ import React, { useState } from 'react';
 import { useAppStore } from '@/lib/appStore';
 import {
     PlayCircle, CheckCircle2, BookOpen, Clock,
-    TrendingUp, Award, ChevronRight, Layout,
-    Zap, Star, ArrowRight, Layers, Play, X, Sparkles, Flame,
-    Calendar, Users, MapPin, MonitorPlay, XCircle
+    TrendingUp, Award, ChevronRight,
+    Zap, Star, ArrowRight, Layers, Play, Sparkles, Flame,
+    MonitorPlay
 } from 'lucide-react';
 import Link from 'next/link';
 import TrackRoadmapView from '@/components/reskill/TrackRoadmapView';
@@ -139,8 +139,6 @@ export default function ReskillDashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [retryCount, setRetryCount] = useState(0);
-    const [upcomingEvent, setUpcomingEvent] = useState<any>(null);
-    const [appliedEvents, setAppliedEvents] = useState<any[]>([]); // New state for applied events
 
     // Get from Store
     const { activeRole, userAnalysis, completedLessonIds, lastViewedLessonIds, currentUserId } = useAppStore();
@@ -157,26 +155,12 @@ export default function ReskillDashboardPage() {
                 console.log('ReskillDashboard: Fetching data...');
 
                 // Parallel fetch
-                const [fetchedTracks, fetchedModules, fetchedEvents] = await Promise.all([
+                const [fetchedTracks, fetchedModules] = await Promise.all([
                     ElearningService.getTracks(),
-                    fetch('/api/elearning/modules').then(res => res.ok ? res.json() : []),
-                    fetch('/api/reskill/events').then(res => res.ok ? res.json() : [])
+                    fetch('/api/elearning/modules').then(res => res.ok ? res.json() : [])
                 ]);
 
                 if (!isActive) return;
-
-                // Process Events
-                if (Array.isArray(fetchedEvents) && fetchedEvents.length > 0) {
-                    // Filter for future events and sort by date
-                    const now = new Date();
-                    const futureEvents = fetchedEvents
-                        .filter((e: any) => new Date(e.start_at) > now)
-                        .sort((a: any, b: any) => new Date(a.start_at).getTime() - new Date(b.start_at).getTime());
-
-                    if (futureEvents.length > 0) {
-                        setUpcomingEvent(futureEvents[0]);
-                    }
-                }
 
                 // Process Tracks
                 const uiTracks = fetchedTracks.map((t: any) => ({
@@ -252,17 +236,6 @@ export default function ReskillDashboardPage() {
         return () => { isActive = false; };
     }, [selectedTrackId]);
 
-    // Fetch Applied Events when currentUserId is available
-    React.useEffect(() => {
-        if (!currentUserId) return;
-
-        const fetchAppliedEvents = async () => {
-            const events = await ElearningService.getAppliedEvents(currentUserId);
-            setAppliedEvents(events);
-        };
-
-        fetchAppliedEvents();
-    }, [currentUserId]);
 
     // Retry function for the debug panel
     const handleRetry = () => {
@@ -387,79 +360,29 @@ export default function ReskillDashboardPage() {
 
             <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
                 {/* Stats Overview */}
-                {/* Stats Overview */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Left: Upcoming Event */}
-                    <div className="bg-white p-0 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col aspect-video hover:shadow-xl transition-shadow">
-                        {upcomingEvent ? (
-                            <Link href="/reskill/events" className="flex flex-col h-full relative">
-                                <div className="absolute inset-0">
-                                    <img
-                                        src={upcomingEvent.image_url || '/illustrations/dx_roadmap.png'}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                                        alt=""
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                                </div>
-
-                                <div className="absolute top-4 left-4">
-                                    <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded shadow-lg backdrop-blur-md">
-                                        NEW EVENT
-                                    </span>
-                                </div>
-
-                                <div className="absolute top-4 right-4 text-white/80 group-hover:text-white transition-colors">
-                                    <ArrowRight size={24} />
-                                </div>
-
-                                <div className="absolute bottom-0 left-0 right-0 p-5 text-white flex flex-col justify-end h-full pointer-events-none">
-                                    <div className="flex items-center gap-3 text-[10px] font-bold text-white/80 mb-1">
-                                        <span className="flex items-center gap-1">
-                                            <Calendar size={12} className="text-blue-400" />
-                                            {new Date(upcomingEvent.start_at).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric', weekday: 'short' })}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <MapPin size={12} className="text-blue-400" />
-                                            {upcomingEvent.event_type === 'webinar' ? 'オンライン' : upcomingEvent.location}
-                                        </span>
-                                    </div>
-
-                                    <h3 className="text-lg font-black leading-tight line-clamp-2 mb-2 group-hover:text-blue-200 transition-colors text-shadow-sm">
-                                        {upcomingEvent.title}
-                                    </h3>
-
-                                    <div className="flex items-center gap-2 text-xs font-bold text-white/60">
-                                        <div className="w-5 h-5 rounded-full bg-slate-700 border border-slate-600 overflow-hidden flex items-center justify-center shrink-0">
-                                            {upcomingEvent.instructor?.image_url ? (
-                                                <img src={upcomingEvent.instructor.image_url} className="w-full h-full object-cover" alt="" />
-                                            ) : (
-                                                <Users size={12} className="text-slate-400" />
-                                            )}
-                                        </div>
-                                        <span>{upcomingEvent.instructor?.display_name || '講師未定'}</span>
-                                    </div>
-                                </div>
-                            </Link>
-                        ) : (
-                            <div className="p-6 flex flex-col justify-between h-full relative">
-                                <div className="absolute right-[-10%] top-[-10%] text-blue-50 opacity-50 group-hover:scale-110 transition-transform">
-                                    <Award size={140} />
-                                </div>
-                                <div className="relative z-10">
-                                    <span className="text-xs font-black text-slate-400 uppercase tracking-widest">全体の進捗</span>
-                                    <div className="flex items-end gap-2 mt-2">
-                                        <span className="text-5xl font-black text-slate-900">{overallProgress}%</span>
-                                        <span className="text-slate-400 font-bold mb-1">達成</span>
-                                    </div>
-                                    <div className="mt-4 h-3 bg-slate-100 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-blue-600 rounded-full transition-all duration-1000"
-                                            style={{ width: `${overallProgress}%` }}
-                                        />
-                                    </div>
-                                </div>
+                    {/* Left: Overall Progress */}
+                    <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col justify-between hover:shadow-xl transition-shadow">
+                        <div className="absolute right-[-10%] top-[-10%] text-blue-50 opacity-50 group-hover:scale-110 transition-transform">
+                            <Award size={140} />
+                        </div>
+                        <div className="relative z-10">
+                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">全体の進捗</span>
+                            <div className="flex items-end gap-2 mt-2">
+                                <span className="text-5xl font-black text-slate-900">{overallProgress}%</span>
+                                <span className="text-slate-400 font-bold mb-1">達成</span>
                             </div>
-                        )}
+                            <div className="mt-4 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-blue-600 rounded-full transition-all duration-1000"
+                                    style={{ width: `${overallProgress}%` }}
+                                />
+                            </div>
+                        </div>
+                        <div className="relative z-10 mt-6 flex items-center gap-1.5 text-xs font-bold text-blue-600 bg-blue-50 self-start px-3 py-1.5 rounded-full">
+                            <TrendingUp size={14} />
+                            学習を続けよう！
+                        </div>
                     </div>
 
                     {/* Middle: Currently Learning */}
@@ -514,8 +437,8 @@ export default function ReskillDashboardPage() {
                     </div>
                 </section>
 
-                {/* My Learning / Applied Events Section */}
-                {(appliedEvents.length > 0 || recentlyViewedLessons.length > 0) && (
+                {/* My Learning Section */}
+                {recentlyViewedLessons.length > 0 && (
                     <section>
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
@@ -525,86 +448,7 @@ export default function ReskillDashboardPage() {
                         </div>
 
                         <div className="space-y-8">
-                            {/* Applied Events */}
-                            {appliedEvents.length > 0 && (
-                                <div>
-                                    <h3 className="text-sm font-black text-slate-500 mb-3 flex items-center gap-2">
-                                        <Calendar size={14} /> 申し込み済みのイベント
-                                    </h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {appliedEvents.map((app: any) => {
-                                            const event = app.event;
-                                            if (!event) return null;
-                                            const eventDate = new Date(event.start_at);
-                                            const isPast = eventDate < new Date();
-
-                                            return (
-                                                <Link
-                                                    href={`/reskill/events`}
-                                                    key={app.id}
-                                                    className={`
-                                                        bg-white border rounded-xl p-4 flex gap-4 transition-all hover:shadow-md group
-                                                        ${isPast
-                                                            ? (app.attended ? 'border-emerald-100 opacity-90' : 'border-slate-100 opacity-60 bg-slate-50/50')
-                                                            : 'border-blue-100 shadow-sm'
-                                                        }
-                                                    `}
-                                                >
-                                                    <div className="w-20 h-20 rounded-lg bg-slate-100 shrink-0 overflow-hidden relative">
-                                                        {event.image_url ? (
-                                                            <img src={event.image_url} className={`w-full h-full object-cover ${isPast && !app.attended ? 'grayscale' : ''}`} alt="" />
-                                                        ) : (
-                                                            <div className="flex items-center justify-center h-full text-slate-300">
-                                                                <Calendar size={24} />
-                                                            </div>
-                                                        )}
-                                                        {isPast && (
-                                                            <div className="absolute inset-0 bg-slate-900/10 flex items-center justify-center">
-                                                                {app.attended ? (
-                                                                    <span className="text-[10px] font-black text-white bg-emerald-600/90 px-2 py-0.5 rounded shadow-sm">出席確認済</span>
-                                                                ) : (
-                                                                    <span className="text-[10px] font-black text-white bg-slate-600/80 px-2 py-0.5 rounded">終了</span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2 mb-1">
-                                                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${event.event_type === 'webinar' ? 'bg-indigo-50 text-indigo-600' : 'bg-emerald-50 text-emerald-600'
-                                                                }`}>
-                                                                {event.event_type === 'webinar' ? 'オンライン' : '現地開催'}
-                                                            </span>
-                                                            <span className="text-[10px] text-slate-400 font-medium">
-                                                                {eventDate.toLocaleDateString()}
-                                                            </span>
-                                                        </div>
-                                                        <h4 className={`text-sm font-black text-slate-800 line-clamp-2 group-hover:text-blue-600 transition-colors mb-1 ${isPast && !app.attended ? 'text-slate-500' : ''}`}>
-                                                            {event.title}
-                                                        </h4>
-                                                        {isPast ? (
-                                                            app.attended ? (
-                                                                <div className="flex items-center gap-1 text-[10px] text-emerald-600 font-bold">
-                                                                    <CheckCircle2 size={10} /> 出席済み
-                                                                </div>
-                                                            ) : (
-                                                                <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold">
-                                                                    <XCircle size={10} /> 未出席/欠席
-                                                                </div>
-                                                            )
-                                                        ) : (
-                                                            <div className="flex items-center gap-1 text-[10px] text-blue-500 font-bold">
-                                                                <CheckCircle2 size={10} /> 申し込み済み
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </Link>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Recently Viewed (Existing logic moved/referenced here) */}
+                            {/* Recently Viewed */}
                             {recentlyViewedLessons.length > 0 && (
                                 <div>
                                     <h3 className="text-sm font-black text-slate-500 mb-3 flex items-center gap-2 mt-6">
@@ -850,28 +694,6 @@ export default function ReskillDashboardPage() {
                     </div>
                 </section>
             </main>
-
-            {/* Bottom Nav Hint (for mobile style feel) */}
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-xl px-2 py-2 rounded-2xl border border-slate-200 shadow-2xl z-50 flex gap-1">
-                <Link href="/reskill" className="flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-black text-sm shadow-lg shadow-blue-100">
-                    <Layout size={18} /> Dashboard
-                </Link>
-                <Link href="/reskill/courses" className="flex items-center gap-2 px-6 py-3 rounded-xl text-slate-400 hover:text-slate-600 font-black text-sm transition-colors">
-                    <BookOpen size={18} /> Courses
-                </Link>
-                <Link href="/reskill/events" className="flex items-center gap-2 px-6 py-3 rounded-xl text-slate-400 hover:text-slate-600 font-black text-sm transition-colors">
-                    <Calendar size={18} /> Events
-                </Link>
-                <Link href="/reskill/instructors" className="flex items-center gap-2 px-6 py-3 rounded-xl text-slate-400 hover:text-slate-600 font-black text-sm transition-colors">
-                    <Users size={18} /> Teachers
-                </Link>
-                {(activeRole === 'admin' || activeRole === 'instructor') && (
-                    <Link href="/reskill/management/participants" className="flex items-center gap-2 px-6 py-3 rounded-xl text-amber-600 hover:text-amber-700 font-black text-sm transition-colors">
-                        <Users size={18} /> Management
-                    </Link>
-                )}
-            </div>
-
 
         </div>
     );

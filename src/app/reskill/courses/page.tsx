@@ -5,7 +5,7 @@ import { useAppStore } from '@/lib/appStore';
 import {
     BookOpen, Search, Filter, Clock, ChevronRight,
     ChevronLeft, ArrowRight, GraduationCap,
-    Lightbulb, Layout as LayoutIcon, ArrowUpDown
+    Lightbulb, ArrowUpDown
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -341,15 +341,6 @@ export default function CoursesListPage() {
                 </section>
             </main>
 
-            {/* Navigation Buttons for switching back */}
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-xl px-2 py-2 rounded-2xl border border-slate-200 shadow-2xl z-50 flex gap-1">
-                <Link href="/reskill" className="flex items-center gap-2 px-6 py-3 rounded-xl text-slate-400 hover:text-slate-600 font-black text-sm transition-colors">
-                    <LayoutIcon size={18} /> Dashboard
-                </Link>
-                <button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 text-white font-black text-sm shadow-lg shadow-blue-100">
-                    <BookOpen size={18} /> Courses
-                </button>
-            </div>
         </div>
     );
 }

@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { GraduationCap, LogOut, LogIn, Menu, ShieldCheck, PanelLeftClose, PanelLeftOpen, Loader2 } from 'lucide-react';
 import { useAppStore } from '@/lib/appStore';
-import MobileBottomNav from './MobileBottomNav';
 import ScrollToTop from './ScrollToTop';
 import { createClient } from '@/utils/supabase/client';
 import { ErrorBoundary } from './ui/ErrorBoundary';
@@ -236,12 +235,11 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 min-w-0 pb-24 md:pb-0 min-h-screen">
+            <main className="flex-1 min-w-0 min-h-screen">
                 <ErrorBoundary>{children}</ErrorBoundary>
             </main>
 
             <ScrollToTop />
-            <MobileBottomNav />
         </div>
     );
 }
