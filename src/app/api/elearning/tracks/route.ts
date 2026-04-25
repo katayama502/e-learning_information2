@@ -5,6 +5,33 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+// POST /api/elearning/tracks - Create a new track
+export async function POST(request: NextRequest) {
+    try {
+        const body = await request.json();
+        if (!body.title) {
+            return NextResponse.json({ error: 'Missing required field: title' }, { status: 400 });
+        }
+        const { data, error } = await supabase
+            .from('courses')
+            .insert({
+                title: body.title,
+                description: body.description || '',
+                image: body.image || '',
+                category: 'Track',
+                is_published: false,
+                order_index: body.order_index || 0,
+            })
+            .select()
+            .single();
+        if (error) throw error;
+        return NextResponse.json(data);
+    } catch (error) {
+        console.error('API create track error:', error);
+        return NextResponse.json({ error: 'Failed to create track' }, { status: 500 });
+    }
+}
+
 // GET /api/elearning/tracks - Get all learning tracks
 export async function GET(request: NextRequest) {
     try {

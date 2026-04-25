@@ -356,9 +356,9 @@ export default function AdminElearningPage() {
                             <Layout className="text-blue-600" />
                             Curriculums (Tracks)
                         </h2>
-                        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
+                        <Link href="/admin/elearning/curriculums" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
                             <Plus size={16} /> 新規作成
-                        </button>
+                        </Link>
                     </div>
 
                     <p className="text-xs text-slate-400 font-bold mb-4">ドラッグして表示順を変更できます</p>
@@ -385,9 +385,9 @@ export default function AdminElearningPage() {
                             <BookOpen className="text-emerald-600" />
                             All Modules
                         </h2>
-                        <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
+                        <Link href="/admin/elearning/courses" className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
                             <Plus size={16} /> コース追加
-                        </button>
+                        </Link>
                     </div>
 
                     <p className="text-xs text-slate-400 font-bold mb-4">ドラッグして表示順を変更できます</p>
