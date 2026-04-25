@@ -38,10 +38,10 @@ export function LoginPromptModal({ isOpen, onClose, message = "この機能を�
 
                 <div className="space-y-3">
                     <button
-                        onClick={() => router.push('/welcome')}
+                        onClick={() => router.push('/login')}
                         className="w-full bg-blue-600 text-white py-4 rounded-xl font-black hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl active:scale-95"
                     >
-                        アカウントを作成する
+                        ログインする
                     </button>
                     <button
                         onClick={() => router.push('/login/seeker')}

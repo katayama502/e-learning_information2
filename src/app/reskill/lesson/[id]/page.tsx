@@ -84,21 +84,6 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
         }
     }, [courses.length, fetchCourses, isFetchingCourses]);
 
-    // ... (YouTube logic omitted for brevity in replace, but we only touched loadLesson above) ...
-    // NOTE: We need to skip to line 216 to fix nextLesson logic.
-    // Since replace_file_content handles contiguous blocks, I must do two edits or one large one.
-    // The previous block ends at line 75. 
-    // The nextLesson logic is at 216. 
-    // I should use multi_replace.
-
-
-    // Fetch courses in background if store is empty
-    useEffect(() => {
-        if (courses.length === 0 && !isFetchingCourses) {
-            fetchCourses();
-        }
-    }, [courses.length, fetchCourses, isFetchingCourses]);
-
     // --- YouTube API Integration ---
     const playerRef = useRef<any>(null);
     const [isPlayerReady, setIsPlayerReady] = useState(false);

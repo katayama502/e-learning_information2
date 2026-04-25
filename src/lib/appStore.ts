@@ -1276,8 +1276,8 @@ export const useAppStore = create<AppState>()(
 
                     const data = await response.json();
 
-                    // Filter to only public modules
-                    const publishedCourses = (data || []).filter((c: any) => c.is_public !== false);
+                    // Filter to only public modules (is_public === true)
+                    const publishedCourses = (data || []).filter((c: any) => c.is_public === true);
                     set({ courses: publishedCourses });
                 } catch (error: any) {
                     if (error?.name === 'AbortError' || error?.message?.includes('aborted')) return;
