@@ -231,12 +231,16 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         <div className="min-h-screen bg-slate-50/50">
             {/* Bright Hero Header */}
             <div className="relative pt-8 pb-12 bg-white border-b border-slate-100">
-                <nav className="max-w-6xl mx-auto px-6 mb-8 flex items-center justify-between">
-                    <Link href="/reskill" className="text-slate-500 hover:bg-slate-100 p-2 rounded-full transition-colors flex items-center gap-2 font-bold text-sm">
-                        <ChevronLeft size={20} />
-                        戻る
+                <nav className="max-w-6xl mx-auto px-6 mb-8 flex items-center gap-2 text-sm font-bold text-slate-400">
+                    <Link href="/reskill" className="hover:text-blue-600 transition-colors">
+                        Dashboard
                     </Link>
-                    <div className="text-xs font-bold text-slate-400">講座詳細</div>
+                    <ChevronLeft size={14} className="rotate-180" />
+                    <Link href="/reskill/courses" className="hover:text-blue-600 transition-colors">
+                        コース一覧
+                    </Link>
+                    <ChevronLeft size={14} className="rotate-180" />
+                    <span className="text-slate-700 truncate max-w-[200px]">{course.title}</span>
                 </nav>
 
                 <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 items-start">
@@ -288,7 +292,7 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     <section>
                         <h2 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-2">
                             <BookOpen className="text-blue-600" size={20} />
-                            カリキュラム
+                            レッスン一覧
                         </h2>
                         <div className="space-y-4">
                             <div className="space-y-4 relative">

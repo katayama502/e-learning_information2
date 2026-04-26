@@ -5,8 +5,9 @@ import { useAppStore } from '@/lib/appStore';
 import {
     BookOpen, Search, Filter, Clock, ChevronRight,
     ChevronLeft, ArrowRight, GraduationCap,
-    Lightbulb, ArrowUpDown
+    Lightbulb, ArrowUpDown, CheckCircle2
 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
 // Helper function to get fallback image based on course title
@@ -167,6 +168,14 @@ export default function CoursesListPage() {
         return Math.round((completed / allLessons.length) * 100);
     };
 
+    const getLessonProgress = (courseId: string): { completed: number; total: number } => {
+        const course = courses.find(c => c.id === courseId);
+        if (!course) return { completed: 0, total: 0 };
+        const allLessons = course.lessons || course.curriculums?.flatMap((curr: any) => curr.lessons) || [];
+        const completed = allLessons.filter((l: any) => completedLessonIds.includes(l.id)).length;
+        return { completed, total: allLessons.length };
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 pb-20 overflow-x-hidden w-full max-w-full">
             {/* Header Section */}
@@ -234,9 +243,31 @@ export default function CoursesListPage() {
 
             <main className="max-w-7xl mx-auto px-6 py-12 space-y-12">
                 {/* Courses Grid */}
+                {isLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden flex flex-col">
+                                <Skeleton className="aspect-video w-full rounded-none" />
+                                <div className="p-8 flex-1 flex flex-col gap-4">
+                                    <div className="flex justify-between">
+                                        <Skeleton className="h-3 w-16" />
+                                        <Skeleton className="h-3 w-12" />
+                                    </div>
+                                    <Skeleton className="h-6 w-3/4" />
+                                    <Skeleton className="h-4 w-full" />
+                                    <Skeleton className="h-4 w-2/3" />
+                                    <div className="mt-auto pt-6 border-t border-slate-50 flex items-center gap-3">
+                                        <Skeleton className="w-8 h-8 rounded-full" />
+                                        <Skeleton className="h-4 w-24" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredCourses.map((course: any) => {
-                        const progress = getProgress(course.id);
+                        const { completed, total } = getLessonProgress(course.id);
                         // APIから直接totalDurationを使用
                         const durationDisplay = course.totalDuration || '0分';
                         return (
@@ -265,9 +296,9 @@ export default function CoursesListPage() {
                                     <div>
                                         <div className="flex items-center justify-between mb-3">
                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{course.level}</span>
-                                            {progress > 0 && (
-                                                <span className="text-emerald-500 text-[10px] font-black flex items-center gap-1">
-                                                    学習中: {progress}%
+                                            {completed > 0 && (
+                                                <span className="text-emerald-600 text-[10px] font-black flex items-center gap-1 bg-emerald-50 px-2 py-0.5 rounded-full">
+                                                    <CheckCircle2 size={10} /> {completed}/{total} 完了
                                                 </span>
                                             )}
                                         </div>
@@ -277,19 +308,27 @@ export default function CoursesListPage() {
                                         <p className="text-sm text-slate-500 font-medium line-clamp-2">
                                             {course.description}
                                         </p>
+                                        {completed > 0 && (
+                                            <div className="mt-3 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full bg-emerald-500 rounded-full transition-all"
+                                                    style={{ width: `${Math.round((completed / total) * 100)}%` }}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="mt-8 pt-6 border-t border-slate-50 flex items-center justify-between">
                                         <div className="flex items-center gap-3">
                                             {course.instructor ? (
                                                 <>
-                                                    <img src={course.instructor.image} className="w-8 h-8 rounded-full border-2 border-white shadow-md shadow-slate-200 object-cover" alt="" />
+                                                    <img src={course.instructor.image} className="w-8 h-8 rounded-full border-2 border-white shadow-md shadow-slate-200 object-cover" alt={course.instructor.name} />
                                                     <span className="text-xs font-black text-slate-700">{course.instructor.name}</span>
                                                 </>
                                             ) : (
                                                 <>
                                                     <div className="w-8 h-8 rounded-full border-2 border-white shadow-md bg-slate-100 flex items-center justify-center">
-                                                        <img src="/icons/logo.png" className="w-5 h-5 opacity-50" onError={(e) => (e.currentTarget.src = '')} alt="" />
+                                                        <img src="/eis_logo_mark.png" className="w-5 h-5 opacity-50" alt="EIS" />
                                                     </div>
                                                     <span className="text-xs font-black text-slate-700">Official Course</span>
                                                 </>
@@ -304,14 +343,21 @@ export default function CoursesListPage() {
                         );
                     })}
                 </div>
+                )}
 
-                {filteredCourses.length === 0 && (
+                {!isLoading && filteredCourses.length === 0 && (
                     <div className="text-center py-20 bg-white rounded-[3rem] border border-slate-100 shadow-sm">
                         <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300">
                             <Search size={40} />
                         </div>
                         <h3 className="text-xl font-black text-slate-800 mb-2">コースが見つかりませんでした</h3>
-                        <p className="text-slate-500 font-bold">検索ワードを変えて試してみてください。</p>
+                        <p className="text-slate-500 font-bold mb-6">検索ワードを変えて試してみてください。</p>
+                        <button
+                            onClick={() => { setSearchQuery(''); setSelectedCategory('すべて'); }}
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-colors"
+                        >
+                            フィルターをリセット
+                        </button>
                     </div>
                 )}
 

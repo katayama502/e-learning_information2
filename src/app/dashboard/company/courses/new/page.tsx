@@ -15,12 +15,15 @@ const categoryOptions = [
 export default function NewCoursePage() {
     const router = useRouter();
     const [title, setTitle] = useState('');
+    const [titleTouched, setTitleTouched] = useState(false);
     const [description, setDescription] = useState('');
     const [category, setCategory] = useState('未分類');
     const [image, setImage] = useState('');
     const [trackId, setTrackId] = useState('');
     const [tracks, setTracks] = useState<any[]>([]);
     const [saving, setSaving] = useState(false);
+
+    const titleError = titleTouched && !title.trim() ? '講座タイトルは必須です' : '';
 
     useEffect(() => {
         ElearningService.getTracks(true)
@@ -30,6 +33,7 @@ export default function NewCoursePage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setTitleTouched(true);
         if (!title.trim()) return;
         setSaving(true);
         try {
@@ -78,11 +82,19 @@ export default function NewCoursePage() {
                         type="text"
                         value={title}
                         onChange={e => setTitle(e.target.value)}
-                        className="w-full font-bold border-2 border-slate-100 rounded-2xl px-4 py-3 focus:border-emerald-500 outline-none text-slate-900 transition-colors"
+                        onBlur={() => setTitleTouched(true)}
+                        className={`w-full font-bold border-2 rounded-2xl px-4 py-3 focus:outline-none text-slate-900 transition-colors ${
+                            titleError
+                                ? 'border-red-400 focus:border-red-500 bg-red-50'
+                                : 'border-slate-100 focus:border-emerald-500'
+                        }`}
                         placeholder="例: ChatGPT活用入門"
                         required
                         autoFocus
                     />
+                    {titleError && (
+                        <p className="mt-1.5 text-xs font-bold text-red-500">{titleError}</p>
+                    )}
                 </div>
 
                 <div>
@@ -110,13 +122,13 @@ export default function NewCoursePage() {
 
                 {tracks.length > 0 && (
                     <div>
-                        <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">所属カリキュラム</label>
+                        <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">所属トラック</label>
                         <select
                             value={trackId}
                             onChange={e => setTrackId(e.target.value)}
                             className="w-full font-bold border-2 border-slate-100 rounded-2xl px-4 py-3 focus:border-emerald-500 outline-none text-slate-900 bg-white transition-colors"
                         >
-                            <option value="">カリキュラムを選択...</option>
+                            <option value="">トラックを選択...</option>
                             {tracks.map(t => (
                                 <option key={t.id} value={t.id}>{t.title}</option>
                             ))}

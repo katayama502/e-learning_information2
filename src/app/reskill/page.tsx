@@ -11,6 +11,7 @@ import {
 import Link from 'next/link';
 import TrackRoadmapView from '@/components/reskill/TrackRoadmapView';
 import { ElearningService } from '@/services/elearning';
+import { Skeleton } from '@/components/ui/skeleton';
 
 // Helper to extract YouTube ID from URL
 const getYoutubeId = (url?: string) => {
@@ -347,7 +348,42 @@ export default function ReskillDashboardPage() {
     return (
         <div className="min-h-screen bg-slate-50 pb-20 w-full min-w-0 overflow-x-hidden">
             <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
+                {/* Next Lesson CTA — shown only when user has a last viewed lesson */}
+                {!isLoading && lastLesson && (
+                    <section>
+                        <Link
+                            href={`/reskill/lesson/${lastLesson.id}`}
+                            className="flex items-center justify-between gap-4 bg-slate-900 text-white px-6 py-4 rounded-2xl hover:bg-slate-800 transition-colors group"
+                        >
+                            <div className="flex items-center gap-4 min-w-0">
+                                <div className="shrink-0 w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center group-hover:bg-blue-400 transition-colors">
+                                    <PlayCircle size={20} />
+                                </div>
+                                <div className="min-w-0">
+                                    <p className="text-[10px] font-black text-white/50 uppercase tracking-widest">前回の続きから</p>
+                                    <p className="font-black truncate">{lastLesson.title}</p>
+                                </div>
+                            </div>
+                            <div className="shrink-0 flex items-center gap-2 text-blue-400 font-black text-sm">
+                                続きから学習する <ArrowRight size={16} />
+                            </div>
+                        </Link>
+                    </section>
+                )}
+
                 {/* Stats Overview */}
+                {isLoading ? (
+                    <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                            <div key={i} className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm space-y-4">
+                                <Skeleton className="h-3 w-24" />
+                                <Skeleton className="h-10 w-20" />
+                                <Skeleton className="h-3 w-full" />
+                                <Skeleton className="h-8 w-28 rounded-full" />
+                            </div>
+                        ))}
+                    </section>
+                ) : (
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Left: Overall Progress */}
                     <div className="bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm relative overflow-hidden group flex flex-col justify-between hover:shadow-xl transition-shadow">
@@ -424,6 +460,7 @@ export default function ReskillDashboardPage() {
                         </div>
                     </div>
                 </section>
+                )}
 
                 {/* My Learning Section */}
                 {recentlyViewedLessons.length > 0 && (
@@ -609,15 +646,13 @@ export default function ReskillDashboardPage() {
                                             {(() => {
                                                 const lessons = course.lessons || course.curriculums?.flatMap((c: any) => c.lessons) || [];
                                                 const completed = lessons.filter((l: any) => completedLessonIds.includes(l.id)).length;
-                                                const progress = lessons.length > 0 ? Math.round((completed / lessons.length) * 100) : 0;
-                                                if (progress > 0) {
+                                                if (completed > 0) {
                                                     return (
                                                         <div className="flex flex-col items-end mt-1">
                                                             <div className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 shadow-lg">
                                                                 <CheckCircle2 size={12} className="text-emerald-500" />
-                                                                <span className="text-[10px] font-black">{progress}% Complete</span>
+                                                                <span className="text-[10px] font-black">{completed}/{lessons.length} 完了</span>
                                                             </div>
-                                                            {/* Progress Bar within container if needed, or simplified code */}
                                                         </div>
                                                     );
                                                 }
@@ -651,7 +686,7 @@ export default function ReskillDashboardPage() {
                                             <div className="flex items-center gap-3">
                                                 {course.instructor ? (
                                                     <>
-                                                        <img src={course.instructor.image} className="w-10 h-10 rounded-full border-2 border-white shadow-md object-cover" alt="" />
+                                                        <img src={course.instructor.image} className="w-10 h-10 rounded-full border-2 border-white shadow-md object-cover" alt={course.instructor.name} />
                                                         <div>
                                                             <p className="text-xs font-black text-slate-800 leading-none">{course.instructor.name}</p>
                                                             <p className="text-[10px] font-bold text-slate-400 mt-0.5">{course.instructor.role}</p>
@@ -660,7 +695,7 @@ export default function ReskillDashboardPage() {
                                                 ) : (
                                                     <>
                                                         <div className="w-10 h-10 rounded-full border-2 border-white shadow-md bg-slate-100 flex items-center justify-center overflow-hidden">
-                                                            <img src="/eis_logo_mark.png" className="w-8 h-8 object-contain" alt="" />
+                                                            <img src="/eis_logo_mark.png" className="w-8 h-8 object-contain" alt="EIS" />
                                                         </div>
                                                         <div>
                                                             <p className="text-xs font-black text-slate-800 leading-none">Ehime Base</p>

@@ -154,7 +154,7 @@ export default function CompanyCoursesPage() {
                                             : (
                                                 <button
                                                     onClick={() => handleTogglePublish(course)}
-                                                    className="p-1.5 text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors shrink-0"
+                                                    className="w-11 h-11 flex items-center justify-center text-slate-300 hover:text-slate-600 hover:bg-slate-50 rounded-full transition-colors shrink-0"
                                                     title={course.is_public ? '非公開にする' : '公開する'}
                                                 >
                                                     <MoreVertical size={18} />

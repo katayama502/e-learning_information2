@@ -226,13 +226,13 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
         <div className="min-h-screen bg-slate-900 flex flex-col">
             {/* Top Navigation */}
             <nav className="bg-slate-800/50 backdrop-blur-md border-b border-white/10 px-4 py-3 flex items-center justify-between text-white z-40">
-                <div className="flex items-center gap-4">
-                    <Link href="/reskill" className="hover:bg-white/10 p-2 rounded-full transition-colors">
-                        <ChevronLeft size={24} />
+                <div className="flex items-center gap-3">
+                    <Link href={course.id ? `/reskill/course/${course.id}` : '/reskill/courses'} className="hover:bg-white/10 w-10 h-10 flex items-center justify-center rounded-full transition-colors shrink-0" aria-label="コースに戻る">
+                        <ChevronLeft size={20} />
                     </Link>
-                    <div>
-                        <span className="text-[10px] font-black uppercase text-blue-400 tracking-widest">{course.title}</span>
-                        <h1 className="text-sm font-bold truncate max-w-[200px] md:max-w-md">{lesson.title}</h1>
+                    <div className="min-w-0">
+                        <Link href={course.id ? `/reskill/course/${course.id}` : '/reskill/courses'} className="text-[10px] font-black uppercase text-blue-400 tracking-widest hover:text-blue-300 transition-colors truncate block max-w-[180px] md:max-w-xs">{course.title}</Link>
+                        <h1 className="text-sm font-bold truncate max-w-[200px] md:max-w-md text-white">{lesson.title}</h1>
                     </div>
                 </div>
                 <button
