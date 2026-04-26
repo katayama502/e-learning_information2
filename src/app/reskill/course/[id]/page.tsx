@@ -186,7 +186,6 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
         const needsFetch = (!course || storeCourseHasNoLessons) && id && !fetchedCourse && !isFetchingCourses;
 
         if (needsFetch) {
-            console.log('Course needs detailed fetch:', id, { courseExists: !!course, hasNoLessons: storeCourseHasNoLessons });
             setLoading(true);
             // まずmodulesから取得を試す（コース一覧もmodulesを使用）
             ElearningService.getModule(id)

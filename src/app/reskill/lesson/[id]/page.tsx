@@ -33,6 +33,7 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
     const [quizSubmitted, setQuizSubmitted] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
     const [isMobileListOpen, setIsMobileListOpen] = useState(false);
+    const [playerError, setPlayerError] = useState(false);
 
     // Initial load: Try Store first, then fallback to Service API
     useEffect(() => {
@@ -49,7 +50,6 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
                 if (foundLesson && foundCourse) {
                     // Ensure store course has lessons before using it
                     if (foundCourse.lessons && foundCourse.lessons.length > 0) {
-                        console.log('Lesson found in AppStore with full details');
                         setLesson(foundLesson);
                         setCourse(foundCourse);
                         setIsLoading(false);
@@ -59,7 +59,6 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
             }
 
             // 2. Fallback: Fetch directly from API
-            console.log('Fetching lesson directly from API...');
             try {
                 const data = await ElearningService.getLesson(String(id));
                 if (data) {
@@ -138,6 +137,7 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
         }
 
         try {
+            setPlayerError(false);
             playerRef.current = new (window as any).YT.Player('youtube-player', {
                 videoId: videoId,
                 playerVars: {
@@ -148,10 +148,11 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
                 events: {
                     onReady: () => setIsPlayerReady(true),
                     onStateChange: onPlayerStateChange,
+                    onError: () => setPlayerError(true),
                 },
             });
         } catch (error) {
-            console.error("Error initializing YouTube player:", error);
+            setPlayerError(true);
         }
 
         if (lesson) {
@@ -307,6 +308,18 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
                 <main className="flex-1 overflow-y-auto bg-slate-950">
                     <div className="bg-black aspect-video w-full shadow-2xl relative">
                         <div id="youtube-player" className="w-full h-full" />
+                        {playerError && (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 text-white gap-3">
+                                <XCircle size={40} className="text-red-400" />
+                                <p className="font-bold text-slate-300">動画を読み込めませんでした</p>
+                                <button
+                                    onClick={() => { setPlayerError(false); window.location.reload(); }}
+                                    className="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl font-bold text-sm transition-colors"
+                                >
+                                    再読み込み
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     <div className="max-w-4xl mx-auto p-6 md:p-10 space-y-10 pb-32">
@@ -368,7 +381,7 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-bold text-white leading-none">資料を開く</p>
-                                                    <span className="text-[10px] text-slate-500 font-bold">External link</span>
+                                                    <span className="text-[10px] text-slate-500 font-bold">外部リンク</span>
                                                 </div>
                                             </div>
                                             <Download size={18} className="text-slate-400" />

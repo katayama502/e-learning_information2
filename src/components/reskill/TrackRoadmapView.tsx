@@ -23,19 +23,6 @@ export default function TrackRoadmapView({ track, courses, completedLessonIds, o
     // But let's stick to the ID filtering if provided.
     const trackCourses = courses.filter(c => track.courseIds.includes(c.id));
 
-    console.log('TrackRoadmapView: Info', {
-        trackTitle: track.title,
-        providedCourses: courses.length,
-        trackCourseIds: track.courseIds.length,
-        filteredCourses: trackCourses.length
-    });
-
-    console.log('TrackRoadmapView: rendered', {
-        trackId: track.id,
-        courseIds: track.courseIds,
-        coursesCount: courses.length,
-        resolvedCourses: trackCourses.length
-    });
 
     // Update line width on mount and resize
     useEffect(() => {
@@ -69,10 +56,10 @@ export default function TrackRoadmapView({ track, courses, completedLessonIds, o
                     <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                             <span className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-md">
-                                Official Curriculum
+                                公式カリキュラム
                             </span>
                             <span className="text-slate-400 text-xs font-bold flex items-center gap-1">
-                                <Clock size={12} /> Total {Math.round(totalTrackLessons * 15 / 60)}h Est.
+                                <Clock size={12} /> 約{Math.round(totalTrackLessons * 15 / 60)}時間
                             </span>
                         </div>
                         <h2 className="text-2xl md:text-4xl font-black text-slate-800 tracking-tight leading-tight">
@@ -93,9 +80,9 @@ export default function TrackRoadmapView({ track, courses, completedLessonIds, o
                             <span className="absolute text-sm font-black text-slate-700">{trackProgress}%</span>
                         </div>
                         <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TOTAL STATUS</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">進捗状況</p>
                             <p className="font-black text-slate-800 text-lg">
-                                {trackProgress === 100 ? 'COMPLETED' : 'IN PROGRESS'}
+                                {trackProgress === 100 ? '修了済み' : '学習中'}
                             </p>
                         </div>
                     </div>
@@ -119,7 +106,7 @@ export default function TrackRoadmapView({ track, courses, completedLessonIds, o
                         <div className="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-white shadow-lg ring-4 ring-white z-10">
                             <MapPin size={20} />
                         </div>
-                        <div className="mt-3 font-black text-slate-400 text-[10px] tracking-widest uppercase">Start</div>
+                        <div className="mt-3 font-black text-slate-400 text-[10px] tracking-widest uppercase">スタート</div>
                     </div>
 
                     {/* Courses */}
@@ -171,7 +158,6 @@ export default function TrackRoadmapView({ track, courses, completedLessonIds, o
                                     tabIndex={isLocked ? -1 : 0}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        console.log('Card clicked, isLocked:', isLocked, 'courseId:', course.id);
                                         if (!isLocked) {
                                             onCourseSelect(course.id);
                                         }
@@ -245,7 +231,7 @@ export default function TrackRoadmapView({ track, courses, completedLessonIds, o
                         `}>
                             <Trophy size={28} fill={trackProgress === 100 ? "currentColor" : "none"} />
                         </div>
-                        <div className="mt-3 font-black text-slate-300 text-[10px] tracking-widest uppercase">Goal</div>
+                        <div className="mt-3 font-black text-slate-300 text-[10px] tracking-widest uppercase">ゴール</div>
                     </div>
                 </div>
             </div>

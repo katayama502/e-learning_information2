@@ -80,7 +80,7 @@ const TrackListItem = ({ track, onUpdate }: { track: any, onUpdate: () => void }
                                 </span>
                             ))}
                             {(!track.courses || track.courses.length === 0) && (
-                                <span className="text-[10px] text-slate-300">No courses</span>
+                                <span className="text-[10px] text-slate-300">コースなし</span>
                             )}
                         </div>
                     </div>
@@ -318,11 +318,36 @@ export default function AdminElearningPage() {
         loadData();
     }, []);
 
-    if (isLoading) return <div className="p-10 text-slate-500 font-bold animate-pulse">Loading E-learning Data...</div>;
+    if (isLoading) return (
+        <div className="p-10 space-y-6">
+            <div className="h-8 w-64 bg-slate-200 rounded animate-pulse" />
+            <div className="h-4 w-96 bg-slate-100 rounded animate-pulse" />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mt-8">
+                {[0, 1].map(i => (
+                    <div key={i} className="bg-white rounded-2xl border border-slate-200 p-6 space-y-3">
+                        {Array.from({ length: 4 }).map((_, j) => (
+                            <div key={j} className="flex items-center gap-4 p-3 rounded-xl">
+                                <div className="w-10 h-10 rounded-lg bg-slate-100 animate-pulse" />
+                                <div className="flex-1 space-y-1.5">
+                                    <div className="h-4 bg-slate-100 rounded animate-pulse w-1/2" />
+                                    <div className="h-3 bg-slate-50 rounded animate-pulse w-3/4" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
     if (error) return (
-        <div className="p-10 text-red-500 font-bold bg-red-50 rounded-xl m-10 border border-red-200">
-            Error loading data: {error}
-            <button onClick={() => window.location.reload()} className="ml-4 underline">Retry</button>
+        <div className="p-10">
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-8 max-w-md text-center space-y-4">
+                <p className="text-red-600 font-black">データの読み込みに失敗しました</p>
+                <p className="text-red-400 text-sm font-bold">{error}</p>
+                <button onClick={() => loadData()} className="px-6 py-2 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors">
+                    再試行する
+                </button>
+            </div>
         </div>
     );
 
@@ -330,7 +355,7 @@ export default function AdminElearningPage() {
         <div className="space-y-12 pb-20">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">E-Learning Management</h1>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight">E-ラーニング管理</h1>
                 <p className="text-slate-500 font-bold mt-2">
                     カリキュラムとコースの管理を行います。<br />
                     上位概念である「カリキュラム」を作成し、その中に「コース」を割り当てることができます。
@@ -341,8 +366,8 @@ export default function AdminElearningPage() {
                         className="inline-flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors shadow-lg"
                     >
                         <Folder size={20} />
-                        <span>Manage Content Library</span>
-                        <span className="bg-slate-700 text-xs px-2 py-0.5 rounded ml-2">Master</span>
+                        <span>コンテンツライブラリ管理</span>
+                        <span className="bg-slate-700 text-xs px-2 py-0.5 rounded ml-2">マスター</span>
                     </Link>
                 </div>
             </div>
@@ -354,7 +379,7 @@ export default function AdminElearningPage() {
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
                             <Layout className="text-blue-600" />
-                            Curriculums (Tracks)
+                            カリキュラム（トラック）
                         </h2>
                         <Link href="/admin/elearning/curriculums" className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200">
                             <Plus size={16} /> 新規作成
@@ -372,7 +397,7 @@ export default function AdminElearningPage() {
                         />
                         {tracks.length === 0 && (
                             <div className="p-10 text-center text-slate-400 text-sm font-bold">
-                                No tracks yet.
+                                カリキュラムがまだありません
                             </div>
                         )}
                     </div>
@@ -383,7 +408,7 @@ export default function AdminElearningPage() {
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-black text-slate-800 flex items-center gap-2">
                             <BookOpen className="text-emerald-600" />
-                            All Modules
+                            コース一覧
                         </h2>
                         <Link href="/admin/elearning/courses" className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 px-4 py-2 rounded-lg font-bold text-sm hover:bg-slate-50 transition-colors">
                             <Plus size={16} /> コース追加
@@ -401,7 +426,7 @@ export default function AdminElearningPage() {
                         />
                         {modules.length === 0 && (
                             <div className="p-10 text-center text-slate-400 text-sm font-bold">
-                                No modules yet.
+                                コースがまだありません
                             </div>
                         )}
                     </div>

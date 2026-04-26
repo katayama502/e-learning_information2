@@ -153,8 +153,6 @@ export default function ReskillDashboardPage() {
 
         const fetchData = async () => {
             try {
-                console.log('ReskillDashboard: Fetching data...');
-
                 // Parallel fetch
                 const [fetchedTracks, fetchedModules] = await Promise.all([
                     ElearningService.getTracks(),
@@ -170,11 +168,9 @@ export default function ReskillDashboardPage() {
                     courseIds: []
                 }));
 
-                console.log('ReskillDashboard: Loaded tracks:', uiTracks.length);
                 setTracks(uiTracks);
 
                 // Process Modules
-                console.log('ReskillDashboard: Loaded modules:', fetchedModules.length);
                 const publicModules = Array.isArray(fetchedModules) ? fetchedModules.filter((m: any) => m.is_public !== false) : [];
                 setAllModules(publicModules);
 
@@ -208,12 +204,10 @@ export default function ReskillDashboardPage() {
             setIsLoading(true);
 
             try {
-                console.log(`ReskillDashboard: Fetching courses for track ${selectedTrackId}...`);
                 const trackCourses = await ElearningService.getCoursesForTrack(selectedTrackId);
 
                 if (!isActive) return;
 
-                console.log(`ReskillDashboard: Fetched ${trackCourses.length} courses.`);
                 setCourses(trackCourses);
             } catch (e: any) {
                 if (!isActive) return;
@@ -265,8 +259,6 @@ export default function ReskillDashboardPage() {
 
         const sortedCats = Object.entries(categories).sort((a, b) => b[1] - a[1]);
         const topCategory = sortedCats[0][0]; // 'A', 'B', 'C', 'D', or 'E'
-
-        console.log('Dashboard: Personalizing for Category', topCategory);
 
         // 2. Sort Tracks based on affinity
         // A(Idea)/B(Active) -> Suggest DX (Planning/Leadership)
@@ -321,13 +313,6 @@ export default function ReskillDashboardPage() {
         ...activeTrackRaw,
         courseIds: courses.map((c: any) => c.id)
     } : undefined;
-
-    console.log('Dashboard: Render', {
-        selectedTrackId,
-        activeTrackRaw: activeTrackRaw?.title,
-        fetchedCourses: courses.length,
-        activeTrackIds: activeTrack?.courseIds.length
-    });
 
     // --- Derived State for Active Module (Course) ---
     const lastLesson = recentlyViewedLessons[0];

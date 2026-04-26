@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, BookOpen, Tag, Eye, EyeOff, Trash2, Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import AdminCurriculumManager, { CurriculumColumn, LessonItem } from '@/components/admin/elearning/AdminCurriculumManager';
 import { ImageUpload } from '@/components/ImageUpload';
 import ContentFormModal from '@/components/admin/elearning/ContentFormModal';
@@ -179,8 +180,41 @@ export default function CompanyCourseDetailPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-32">
-                <Loader2 size={32} className="animate-spin text-slate-300" />
+            <div className="space-y-8 pb-20">
+                <div className="flex items-center gap-4">
+                    <Skeleton className="w-10 h-10 rounded-xl" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-6 w-48" />
+                        <Skeleton className="h-4 w-32" />
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 bg-white rounded-[2rem] border border-slate-100 p-8 space-y-5">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-10 w-full rounded-2xl" />
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-28 w-full rounded-2xl" />
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-10 w-full rounded-2xl" />
+                    </div>
+                    <div className="space-y-4">
+                        <Skeleton className="aspect-video w-full rounded-2xl" />
+                        <Skeleton className="h-12 w-full rounded-2xl" />
+                        <Skeleton className="h-12 w-full rounded-2xl" />
+                    </div>
+                </div>
+                <div className="bg-white rounded-[2rem] border border-slate-100 p-6 space-y-4">
+                    <Skeleton className="h-5 w-32" />
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="flex items-center gap-4 p-4 border border-slate-100 rounded-xl">
+                            <Skeleton className="w-32 h-20 rounded-lg" />
+                            <div className="flex-1 space-y-2">
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-3 w-1/4" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
