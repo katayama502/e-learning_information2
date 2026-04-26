@@ -32,6 +32,7 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
     const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
     const [quizSubmitted, setQuizSubmitted] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
+    const [isMobileListOpen, setIsMobileListOpen] = useState(false);
 
     // Initial load: Try Store first, then fallback to Service API
     useEffect(() => {
@@ -218,9 +219,8 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
 
     // Use local course state for accurate lessons list (Store might be shallow)
     const currentCourseLessons = course?.lessons || [];
-    const nextLesson = currentCourseLessons.find((l: any) =>
-        (l.order_index || 0) === (lesson?.order_index || 0) + 1
-    );
+    const currentIndex = currentCourseLessons.findIndex((l: any) => String(l.id) === String(id));
+    const nextLesson = currentIndex >= 0 ? currentCourseLessons[currentIndex + 1] : undefined;
 
     return (
         <div className="min-h-screen bg-slate-900 flex flex-col">
@@ -235,13 +235,72 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
                         <h1 className="text-sm font-bold truncate max-w-[200px] md:max-w-md text-white">{lesson.title}</h1>
                     </div>
                 </div>
-                <button
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="p-2 hover:bg-white/10 rounded-lg text-slate-400"
-                >
-                    <Menu size={20} />
-                </button>
+                <div className="flex items-center gap-1">
+                    {/* Mobile: open bottom sheet */}
+                    <button
+                        onClick={() => setIsMobileListOpen(true)}
+                        className="lg:hidden w-10 h-10 flex items-center justify-center hover:bg-white/10 rounded-lg text-slate-400"
+                        aria-label="レッスン一覧"
+                    >
+                        <Menu size={20} />
+                    </button>
+                    {/* Desktop: toggle sidebar */}
+                    <button
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className="hidden lg:flex w-10 h-10 items-center justify-center hover:bg-white/10 rounded-lg text-slate-400"
+                        aria-label="サイドバーを開閉"
+                    >
+                        <Menu size={20} />
+                    </button>
+                </div>
             </nav>
+
+            {/* Mobile lesson list bottom sheet */}
+            {isMobileListOpen && (
+                <div
+                    className="fixed inset-0 bg-black/70 z-[200] lg:hidden"
+                    onClick={() => setIsMobileListOpen(false)}
+                >
+                    <div
+                        className="absolute bottom-0 left-0 right-0 bg-slate-900 rounded-t-3xl max-h-[70vh] flex flex-col"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+                            <h3 className="font-black text-white">レッスン一覧</h3>
+                            <button
+                                onClick={() => setIsMobileListOpen(false)}
+                                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="overflow-y-auto flex-1 py-2">
+                            {currentCourseLessons.map((l: any, idx: number) => (
+                                <Link
+                                    key={l.id}
+                                    href={`/reskill/lesson/${l.id}`}
+                                    onClick={() => setIsMobileListOpen(false)}
+                                    className={`flex items-center gap-3 px-6 py-3 hover:bg-white/5 transition-colors ${String(l.id) === String(id) ? 'bg-blue-600/10 border-l-4 border-blue-600' : ''}`}
+                                >
+                                    <div className="shrink-0">
+                                        {isLessonCompleted(l.id) ? (
+                                            <CheckCircle2 size={16} className="text-emerald-500" />
+                                        ) : (
+                                            <PlayCircle size={16} className={String(l.id) === String(id) ? 'text-blue-400' : 'text-slate-500'} />
+                                        )}
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className={`text-xs font-bold leading-snug line-clamp-2 ${String(l.id) === String(id) ? 'text-blue-400' : 'text-slate-300'}`}>
+                                            {idx + 1}. {l.title}
+                                        </p>
+                                        {l.duration && <span className="text-[10px] text-slate-500">{l.duration}</span>}
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )}
 
             <div className="flex-1 flex overflow-hidden">
                 {/* Main Content Area */}
@@ -276,9 +335,13 @@ export default function LessonPlayerPage({ params }: { params: Promise<{ id: str
                                 {nextLesson && (
                                     <Link
                                         href={`/reskill/lesson/${nextLesson.id}`}
-                                        className="p-4 bg-slate-800 text-white rounded-2xl hover:bg-slate-700 transition-all border border-white/5"
+                                        className="flex items-center gap-3 px-5 py-4 bg-slate-800 text-white rounded-2xl hover:bg-slate-700 transition-all border border-white/5 group max-w-[220px]"
                                     >
-                                        <ChevronRight size={24} />
+                                        <div className="min-w-0">
+                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">次のレッスン</p>
+                                            <p className="text-xs font-bold truncate group-hover:text-blue-400 transition-colors">{nextLesson.title}</p>
+                                        </div>
+                                        <ChevronRight size={18} className="shrink-0 group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 )}
                             </div>

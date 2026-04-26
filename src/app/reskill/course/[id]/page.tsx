@@ -7,6 +7,7 @@ import { useAppStore } from '@/lib/appStore';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import { getYoutubeId } from '@/utils/youtube';
+import { Skeleton } from '@/components/ui/skeleton';
 
 import { ElearningService } from '@/services/elearning';
 import { AffinitySection } from './AffinitySection';
@@ -219,7 +220,52 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
     const [isExpanded, setIsExpanded] = React.useState(false);
     const displayedLessons = isExpanded ? allLessons : allLessons.slice(0, 3);
 
-    if (loading) return <div className="min-h-screen flex items-center justify-center font-bold text-slate-400">読み込み中...</div>;
+    if (loading) return (
+        <div className="min-h-screen bg-slate-50/50">
+            <div className="bg-white border-b border-slate-100 pt-8 pb-12">
+                <div className="max-w-6xl mx-auto px-6 mb-8 flex items-center gap-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-4" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-4" />
+                    <Skeleton className="h-4 w-32" />
+                </div>
+                <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+                    <div className="md:col-span-2 space-y-4">
+                        <Skeleton className="h-6 w-24 rounded-full" />
+                        <Skeleton className="h-10 w-3/4" />
+                        <Skeleton className="h-10 w-1/2" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                    </div>
+                    <Skeleton className="aspect-video rounded-2xl" />
+                </div>
+            </div>
+            <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-12">
+                <div className="md:col-span-2 space-y-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="flex gap-4 p-4 bg-white border border-slate-100 rounded-2xl">
+                            <Skeleton className="w-full md:w-56 aspect-video rounded-xl shrink-0" />
+                            <div className="flex-1 space-y-3 py-2">
+                                <Skeleton className="h-3 w-16" />
+                                <Skeleton className="h-5 w-3/4" />
+                                <Skeleton className="h-3 w-1/2" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+                <div className="space-y-4 bg-white rounded-3xl p-6 border border-slate-100 h-fit">
+                    <Skeleton className="h-3 w-20" />
+                    <Skeleton className="h-12 w-full rounded-2xl" />
+                    <div className="pt-4 border-t border-slate-100 space-y-2">
+                        <Skeleton className="h-3 w-24" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-4/5" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
     if (!course) return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
             <div className="font-bold text-slate-400 text-lg">講座が見つかりません</div>
@@ -340,18 +386,64 @@ export default function CourseDetailPage({ params }: { params: Promise<{ id: str
                     <div className="bg-white rounded-3xl p-6 border border-slate-100 sticky top-6 shadow-sm">
                         <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">アクション</h3>
 
-                        {allLessons[0] ? (
-                            <Link
-                                href={`/reskill/lesson/${allLessons[0].id}`}
-                                className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] transition-all group"
-                            >
-                                学習を始める <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                            </Link>
-                        ) : (
-                            <button disabled className="w-full bg-slate-100 text-slate-400 font-black py-4 rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed">
-                                準備中
-                            </button>
-                        )}
+                        {(() => {
+                            if (!allLessons[0]) {
+                                return (
+                                    <button disabled className="w-full bg-slate-100 text-slate-400 font-black py-4 rounded-2xl flex items-center justify-center gap-2 cursor-not-allowed">
+                                        準備中
+                                    </button>
+                                );
+                            }
+                            const completedCount = allLessons.filter((l: any) => isLessonCompleted(l.id)).length;
+                            const isAllDone = completedCount === allLessons.length && allLessons.length > 0;
+                            const firstUncompleted = allLessons.find((l: any) => !isLessonCompleted(l.id));
+                            const targetLesson = firstUncompleted || allLessons[0];
+
+                            if (isAllDone) {
+                                return (
+                                    <Link
+                                        href={`/reskill/lesson/${allLessons[0].id}`}
+                                        className="w-full bg-emerald-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 hover:bg-emerald-700 hover:scale-[1.02] transition-all group"
+                                    >
+                                        <CheckCircle2 size={16} /> 復習する
+                                    </Link>
+                                );
+                            }
+                            if (completedCount > 0) {
+                                return (
+                                    <Link
+                                        href={`/reskill/lesson/${targetLesson.id}`}
+                                        className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] transition-all group"
+                                    >
+                                        続きから学習する <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                    </Link>
+                                );
+                            }
+                            return (
+                                <Link
+                                    href={`/reskill/lesson/${allLessons[0].id}`}
+                                    className="w-full bg-blue-600 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 hover:bg-blue-700 hover:scale-[1.02] transition-all group"
+                                >
+                                    学習を始める <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            );
+                        })()}
+
+                        {allLessons.length > 0 && (() => {
+                            const completedCount = allLessons.filter((l: any) => isLessonCompleted(l.id)).length;
+                            const pct = Math.round((completedCount / allLessons.length) * 100);
+                            return (
+                                <div className="mt-4 space-y-1.5">
+                                    <div className="flex justify-between text-xs font-bold text-slate-500">
+                                        <span>進捗</span>
+                                        <span className="text-blue-600">{completedCount}/{allLessons.length} 完了</span>
+                                    </div>
+                                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-blue-600 rounded-full transition-all duration-700" style={{ width: `${pct}%` }} />
+                                    </div>
+                                </div>
+                            );
+                        })()}
 
                         <div className="mt-6 pt-6 border-t border-slate-100">
                             <h4 className="text-xs font-bold text-slate-800 mb-2">この講座について</h4>

@@ -98,10 +98,15 @@ export default function NewCoursePage() {
                 </div>
 
                 <div>
-                    <label className="block text-xs font-black text-slate-500 uppercase tracking-wider mb-2">説明</label>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="block text-xs font-black text-slate-500 uppercase tracking-wider">説明</label>
+                        <span className={`text-xs font-bold tabular-nums ${description.length > 480 ? 'text-red-500' : 'text-slate-400'}`}>
+                            {description.length}/500
+                        </span>
+                    </div>
                     <textarea
                         value={description}
-                        onChange={e => setDescription(e.target.value)}
+                        onChange={e => setDescription(e.target.value.slice(0, 500))}
                         className="w-full font-bold border-2 border-slate-100 rounded-2xl px-4 py-3 focus:border-emerald-500 outline-none text-slate-900 min-h-[120px] transition-colors"
                         placeholder="講座の概要を入力してください..."
                     />

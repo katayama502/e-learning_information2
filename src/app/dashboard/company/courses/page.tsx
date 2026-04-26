@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, BookOpen, MoreVertical, Eye, EyeOff, Trash2, Search, Loader2 } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { ElearningService } from '@/services/elearning';
 import { toast } from 'sonner';
 
@@ -106,7 +107,26 @@ export default function CompanyCoursesPage() {
 
             {/* Course Grid */}
             {isLoading ? (
-                <div className="py-20 text-center text-slate-400 font-bold animate-pulse">読み込み中...</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                            <div className="flex gap-4">
+                                <Skeleton className="w-20 h-20 rounded-2xl shrink-0" />
+                                <div className="flex-1 space-y-2 py-1">
+                                    <Skeleton className="h-4 w-3/4" />
+                                    <div className="flex gap-2">
+                                        <Skeleton className="h-3 w-16" />
+                                        <Skeleton className="h-3 w-12" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="mt-5 grid grid-cols-2 gap-3">
+                                <Skeleton className="h-10 rounded-xl" />
+                                <Skeleton className="h-10 rounded-xl" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : filtered.length === 0 ? (
                 <div className="py-20 text-center">
                     <div className="w-20 h-20 bg-slate-50 text-slate-200 rounded-full flex items-center justify-center mx-auto mb-4">

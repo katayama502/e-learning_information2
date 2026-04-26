@@ -268,21 +268,27 @@ export default function CoursesListPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {filteredCourses.map((course: any) => {
                         const { completed, total } = getLessonProgress(course.id);
+                        const isCompleted = total > 0 && completed === total;
                         // APIから直接totalDurationを使用
                         const durationDisplay = course.totalDuration || '0分';
                         return (
                             <Link
                                 key={course.id}
                                 href={`/reskill/course/${course.id}`}
-                                className="group bg-white rounded-[2.5rem] border border-slate-200 overflow-hidden hover:shadow-2xl transition-all h-full flex flex-col"
+                                className={`group bg-white rounded-[2.5rem] border overflow-hidden hover:shadow-2xl transition-all h-full flex flex-col ${isCompleted ? 'border-emerald-200' : 'border-slate-200'}`}
                             >
                                 <div className="aspect-video relative overflow-hidden">
                                     <img
                                         src={getCourseImage(course)}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ${isCompleted ? 'brightness-90' : ''}`}
                                         alt={course.title}
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                                    {isCompleted && (
+                                        <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-emerald-500 text-white text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg">
+                                            <CheckCircle2 size={12} /> 修了済み
+                                        </div>
+                                    )}
                                     <div className="absolute bottom-4 left-6 right-6 flex justify-between items-center">
                                         <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-black shadow-lg">
                                             {course.category}

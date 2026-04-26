@@ -6,7 +6,7 @@ import {
     PlayCircle, CheckCircle2, BookOpen, Clock,
     TrendingUp, Award, ChevronRight,
     Zap, Star, ArrowRight, Layers, Play, Sparkles, Flame,
-    MonitorPlay
+    MonitorPlay, AlertCircle, RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 import TrackRoadmapView from '@/components/reskill/TrackRoadmapView';
@@ -344,6 +344,26 @@ export default function ReskillDashboardPage() {
 
     // Aliases for JSX compatibility
     const activeCourse = activeModule;
+
+    if (error && tracks.length === 0) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+                <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-10 max-w-sm w-full text-center space-y-4">
+                    <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto">
+                        <AlertCircle size={32} className="text-red-400" />
+                    </div>
+                    <h2 className="text-xl font-black text-slate-800">データの読み込みに失敗しました</h2>
+                    <p className="text-sm text-slate-500 font-bold">ネットワーク接続を確認して再試行してください。</p>
+                    <button
+                        onClick={handleRetry}
+                        className="w-full flex items-center justify-center gap-2 py-3 bg-blue-600 text-white font-black rounded-2xl hover:bg-blue-700 transition-colors"
+                    >
+                        <RefreshCw size={16} /> 再試行する
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 pb-20 w-full min-w-0 overflow-x-hidden">
