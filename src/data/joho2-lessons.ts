@@ -44,10 +44,10 @@ export const JOHO2_UNITS: Unit[] = [
     materials: [
       {
         id: 'lesson-1-1',
-        title: 'Hello, Python!',
+        title: '情報社会の始まり',
         // ↓ Google SlidesのURLをここに貼る（共有リンク）
         // 例: 'https://docs.google.com/presentation/d/XXXX/edit'
-        slide_ref: null,
+        slide_ref: 'https://docs.google.com/presentation/d/18xHg2kFCiUxjvC4sy1M8_xrUcmY2MdS8xz7yW0WqJrg/edit?usp=sharing',
         starter_code: `# Pythonで文字を表示してみよう
 # print() 関数を使います
 
@@ -75,7 +75,7 @@ print("Hello, World!")
       },
       {
         id: 'lesson-1-2',
-        title: '変数と計算',
+        title: '情報社会の進歩',
         slide_ref: null,
         starter_code: `# 変数を使って計算してみよう
 x = 10
