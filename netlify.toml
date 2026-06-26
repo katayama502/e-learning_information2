@@ -7,3 +7,28 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# 全ページ: ブラウザキャッシュを有効化
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# 静的アセット: 長期キャッシュ
+[[headers]]
+  for = "/_next/static/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# /joho2 配下: Pyodide(WASM)に必要な COOP/COEP ヘッダー
+[[headers]]
+  for = "/joho2"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "credentialless"
+
+[[headers]]
+  for = "/joho2/*"
+  [headers.values]
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Embedder-Policy = "credentialless"
