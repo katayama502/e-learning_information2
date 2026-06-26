@@ -52,8 +52,8 @@ export default function LessonPage() {
   );
 
   const editorPane = (
-    <div className="flex flex-col h-full gap-4">
-      <PythonEditor starterCode={material.starter_code} height="calc(100% - 2rem)" />
+    <div className="flex flex-col gap-4">
+      <PythonEditor starterCode={material.starter_code} height="320px" />
       {material.questions.length > 0 && (
         <TestComponent
           questions={material.questions}
