@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,22 +22,18 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "e-ラーニング",
-  description: "e-ラーニングシステム（Ehime Base 抽出版）",
+  title: "情報2 学習プラットフォーム",
+  description: "スライド＋Pythonで学ぶ高校情報2",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja">
       <body className="antialiased font-sans" suppressHydrationWarning={true}>
-        <AuthProvider>
-          <div className="min-h-screen bg-zinc-50">{children}</div>
-          <Toaster position="top-center" richColors />
-        </AuthProvider>
+        <div className="min-h-screen bg-zinc-50">{children}</div>
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
