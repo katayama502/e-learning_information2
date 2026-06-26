@@ -1,19 +1,13 @@
+export const dynamic = 'force-dynamic';
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-// Init Supabase with Service Role Key to bypass RLS
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!supabaseServiceKey) {
-    console.error('SUPABASE_SERVICE_ROLE_KEY is missing in API route');
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
 // GET /api/elearning/content - Get all lessons with pagination
 export async function GET(request: Request) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     try {
         const { searchParams } = new URL(request.url);
         const page = parseInt(searchParams.get('page') || '1');
@@ -77,6 +71,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
     try {
         const body = await request.json();
         const { title, url, duration, quiz, material_url, category } = body;
