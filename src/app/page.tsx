@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { GraduationCap, BookOpen, ShieldCheck, LogIn } from "lucide-react";
+import { GraduationCap, BookOpen, ShieldCheck, LogIn, Code2 } from "lucide-react";
 import { useAppStore } from "@/lib/appStore";
 
 export default function HomePage() {
@@ -23,7 +23,7 @@ export default function HomePage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
         <Link
           href="/reskill"
           className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all"
@@ -32,6 +32,17 @@ export default function HomePage() {
           <h2 className="font-black text-slate-800 mb-1">受講者ダッシュボード</h2>
           <p className="text-sm text-slate-500 font-bold">
             コース一覧・レッスン視聴
+          </p>
+        </Link>
+
+        <Link
+          href="/joho2"
+          className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all"
+        >
+          <Code2 className="text-purple-600 mb-3" size={28} />
+          <h2 className="font-black text-slate-800 mb-1">情報2</h2>
+          <p className="text-sm text-slate-500 font-bold">
+            スライド＋Pythonで学ぶ情報講座
           </p>
         </Link>
 

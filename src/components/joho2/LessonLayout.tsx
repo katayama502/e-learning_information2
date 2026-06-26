@@ -1,0 +1,95 @@
+'use client';
+
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, PanelLeft, PanelRight } from 'lucide-react';
+
+interface LessonLayoutProps {
+  title: string;
+  slidePane: React.ReactNode;
+  editorPane: React.ReactNode;
+  footer: React.ReactNode;
+  onPrev?: () => void;
+  onNext?: () => void;
+  hasPrev?: boolean;
+  hasNext?: boolean;
+}
+
+type PanelMode = 'split' | 'slide' | 'editor';
+
+export function LessonLayout({
+  title,
+  slidePane,
+  editorPane,
+  footer,
+  onPrev,
+  onNext,
+  hasPrev,
+  hasNext,
+}: LessonLayoutProps) {
+  const [mode, setMode] = useState<PanelMode>('split');
+
+  return (
+    <div className="flex flex-col h-screen bg-slate-50">
+      {/* Top bar */}
+      <header className="flex items-center gap-3 px-4 py-2 bg-white border-b border-slate-200 shrink-0">
+        <button
+          onClick={onPrev}
+          disabled={!hasPrev}
+          className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <h1 className="font-black text-slate-800 text-sm flex-1 truncate">{title}</h1>
+        <button
+          onClick={onNext}
+          disabled={!hasNext}
+          className="p-1.5 rounded-lg hover:bg-slate-100 disabled:opacity-30 transition-colors"
+        >
+          <ChevronRight size={20} />
+        </button>
+        {/* Panel toggle buttons */}
+        <div className="flex rounded-lg border border-slate-200 overflow-hidden ml-2">
+          <button
+            onClick={() => setMode('slide')}
+            className={`px-2 py-1.5 text-xs font-bold transition-colors flex items-center gap-1 ${mode === 'slide' ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+          >
+            <PanelLeft size={14} />
+            スライド
+          </button>
+          <button
+            onClick={() => setMode('split')}
+            className={`px-2 py-1.5 text-xs font-bold transition-colors ${mode === 'split' ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+          >
+            分割
+          </button>
+          <button
+            onClick={() => setMode('editor')}
+            className={`px-2 py-1.5 text-xs font-bold transition-colors flex items-center gap-1 ${mode === 'editor' ? 'bg-blue-600 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}
+          >
+            <PanelRight size={14} />
+            Python
+          </button>
+        </div>
+      </header>
+
+      {/* Main area */}
+      <main className="flex-1 overflow-hidden">
+        {mode === 'split' && (
+          <div className="grid grid-cols-2 h-full gap-0">
+            <div className="p-3 overflow-auto border-r border-slate-200">{slidePane}</div>
+            <div className="p-3 overflow-auto">{editorPane}</div>
+          </div>
+        )}
+        {mode === 'slide' && (
+          <div className="h-full p-3 overflow-auto">{slidePane}</div>
+        )}
+        {mode === 'editor' && (
+          <div className="h-full p-3 overflow-auto">{editorPane}</div>
+        )}
+      </main>
+
+      {/* Footer: XP/rank bar */}
+      <footer className="shrink-0">{footer}</footer>
+    </div>
+  );
+}

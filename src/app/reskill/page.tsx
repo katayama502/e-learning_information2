@@ -6,7 +6,7 @@ import {
     PlayCircle, CheckCircle2, BookOpen, Clock,
     TrendingUp, Award, ChevronRight,
     Zap, Star, ArrowRight, Layers, Play, Sparkles, Flame,
-    MonitorPlay, AlertCircle, RefreshCw
+    MonitorPlay, AlertCircle, RefreshCw, X
 } from 'lucide-react';
 import Link from 'next/link';
 import TrackRoadmapView from '@/components/reskill/TrackRoadmapView';
