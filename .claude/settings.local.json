@@ -20,7 +20,10 @@
       "Bash(npx supabase *)",
       "Bash(npm run *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/joho2)",
-      "Bash(netlify status *)"
+      "Bash(netlify status *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k\\) for k in d.get\\('dependencies',{}\\) if 'supabase' in k or 'vercel' in k.lower\\(\\)]\")",
+      "Bash(npm uninstall *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(k\\) for k in {**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)} if 'vercel' in k.lower\\(\\) or 'netlify' in k.lower\\(\\)]\")"
     ]
   }
 }
