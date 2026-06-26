@@ -10,11 +10,12 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false 
 interface PythonEditorProps {
   starterCode?: string;
   onOutput?: (stdout: string, stderr: string) => void;
+  onCodeChange?: (code: string) => void;
   readOnly?: boolean;
   height?: string;
 }
 
-export function PythonEditor({ starterCode = '', onOutput, readOnly = false, height = '300px' }: PythonEditorProps) {
+export function PythonEditor({ starterCode = '', onOutput, onCodeChange, readOnly = false, height = '300px' }: PythonEditorProps) {
   const [code, setCode] = useState(starterCode);
   const [stdout, setStdout] = useState('');
   const [stderr, setStderr] = useState('');
@@ -49,7 +50,7 @@ export function PythonEditor({ starterCode = '', onOutput, readOnly = false, hei
           language="python"
           theme="vs-dark"
           value={code}
-          onChange={(v) => setCode(v ?? '')}
+          onChange={(v) => { setCode(v ?? ''); onCodeChange?.(v ?? ''); }}
           options={{
             readOnly,
             minimap: { enabled: false },
