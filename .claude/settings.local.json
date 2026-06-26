@@ -11,7 +11,16 @@
       "Bash(mkdir -p \"/Applications/MAMP/htdocs/e-learning情報2/src/app/joho2/unit/[unitId]\")",
       "Bash(npx tsc *)",
       "mcp__Claude_Preview__preview_start",
-      "Bash(curl -s http://localhost:3000/)"
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(npx next *)",
+      "Bash(git add *)",
+      "Bash(git reset *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(npx supabase *)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000/joho2)",
+      "Bash(netlify status *)"
     ]
   }
 }
