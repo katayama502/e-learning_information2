@@ -163,3 +163,4 @@ npm install
   メニューから外しているのでアクセスされません。
 - 共有先での利用範囲は提供元と相談してください。
 # E-learning.v1
+# e-learning_information2
