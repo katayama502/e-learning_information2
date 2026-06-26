@@ -164,3 +164,4 @@ npm install
 - 共有先での利用範囲は提供元と相談してください。
 # E-learning.v1
 # e-learning_information2
+# e-learning_information2
