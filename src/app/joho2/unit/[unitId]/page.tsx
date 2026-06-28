@@ -1,20 +1,30 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { PlayCircle, CheckCircle2, BookOpen } from 'lucide-react';
+import { PlayCircle, CheckCircle2, BookOpen, Loader2 } from 'lucide-react';
 import { AppShell } from '@/components/joho2/AppShell';
-import { JOHO2_UNITS } from '@/data/joho2-lessons';
-import { loadProgress, type Joho2Progress } from '@/lib/joho2Store';
+import { useCurriculum } from '@/lib/curriculum/CurriculumProvider';
+import { useProgress } from '@/lib/progress/ProgressProvider';
 
 export default function UnitPage() {
   const { unitId } = useParams<{ unitId: string }>();
-  const [progress, setProgress] = useState<Joho2Progress | null>(null);
+  const { units, loading } = useCurriculum();
+  const { progress } = useProgress();
 
-  useEffect(() => { setProgress(loadProgress()); }, []);
+  const unit = units.find((u) => u.id === unitId);
 
-  const unit = JOHO2_UNITS.find((u) => u.id === unitId);
+  if (loading) {
+    return (
+      <AppShell>
+        <div className="min-h-full flex items-center justify-center text-slate-400 gap-2">
+          <Loader2 size={20} className="animate-spin" />
+          <span className="font-bold text-sm">読み込み中...</span>
+        </div>
+      </AppShell>
+    );
+  }
 
   if (!unit) {
     return (
@@ -27,6 +37,7 @@ export default function UnitPage() {
   }
 
   const passedCount = unit.materials.filter((m) => progress?.passedLessons.includes(m.id)).length;
+  const total = Math.max(unit.materials.length, 1);
 
   return (
     <AppShell>
@@ -46,13 +57,13 @@ export default function UnitPage() {
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-bold text-slate-600">進捗</span>
             <span className="text-sm font-black text-purple-600">
-              {Math.round((passedCount / unit.materials.length) * 100)}%
+              {Math.round((passedCount / total) * 100)}%
             </span>
           </div>
           <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
               className="h-full bg-purple-500 rounded-full transition-all"
-              style={{ width: `${(passedCount / unit.materials.length) * 100}%` }}
+              style={{ width: `${(passedCount / total) * 100}%` }}
             />
           </div>
         </div>

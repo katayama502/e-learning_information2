@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -32,7 +33,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="antialiased font-sans" suppressHydrationWarning={true}>
-        <div className="min-h-screen bg-zinc-50">{children}</div>
+        <AuthProvider>
+          <div className="min-h-screen bg-zinc-50">{children}</div>
+        </AuthProvider>
         <Toaster position="top-center" richColors />
       </body>
     </html>

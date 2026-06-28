@@ -1,32 +1,36 @@
 'use client';
 
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
 import { LessonLayout } from '@/components/joho2/LessonLayout';
 import { SlideViewer } from '@/components/joho2/SlideViewer';
 import { PythonEditor } from '@/components/joho2/PythonEditor';
 import { RankProgressBar } from '@/components/joho2/RankProgressBar';
 import { TestComponent } from '@/components/joho2/TestComponent';
-import { findMaterial } from '@/data/joho2-lessons';
-import { loadProgress, markSlideRead, type Joho2Progress } from '@/lib/joho2Store';
+import { useCurriculum } from '@/lib/curriculum/CurriculumProvider';
+import { useProgress } from '@/lib/progress/ProgressProvider';
 
 export default function LessonPage() {
   const { materialId } = useParams<{ materialId: string }>();
   const router = useRouter();
-  const [progress, setProgress] = useState<Joho2Progress | null>(null);
-
-  useEffect(() => { setProgress(loadProgress()); }, []);
+  const { findMaterial, loading } = useCurriculum();
+  const { progress, markSlideRead } = useProgress();
 
   const found = findMaterial(materialId);
 
-  const refreshProgress = useCallback(() => {
-    setProgress(loadProgress());
-  }, []);
-
   const handleSlideRead = useCallback(() => {
     markSlideRead(materialId);
-    refreshProgress();
-  }, [materialId, refreshProgress]);
+  }, [materialId, markSlideRead]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-slate-400 gap-2">
+        <Loader2 size={20} className="animate-spin" />
+        <span className="font-bold">読み込み中...</span>
+      </div>
+    );
+  }
 
   if (!found) {
     return (
@@ -59,7 +63,6 @@ export default function LessonPage() {
           questions={material.questions}
           materialId={materialId}
           starterCode={material.starter_code}
-          onPassed={refreshProgress}
         />
       )}
     </div>

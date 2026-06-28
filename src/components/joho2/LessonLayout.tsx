@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, PanelLeft, PanelRight, Menu, X } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronLeft, ChevronRight, PanelLeft, PanelRight, Menu } from 'lucide-react';
 import { Sidebar } from './Sidebar';
-import { loadProgress, type Joho2Progress } from '@/lib/joho2Store';
+import { useProgress } from '@/lib/progress/ProgressProvider';
 
 interface LessonLayoutProps {
   title: string;
@@ -31,9 +31,7 @@ export function LessonLayout({
   const [mode, setMode] = useState<PanelMode>('split');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [progress, setProgress] = useState<Joho2Progress | null>(null);
-
-  useEffect(() => { setProgress(loadProgress()); }, []);
+  const { progress } = useProgress();
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-50">

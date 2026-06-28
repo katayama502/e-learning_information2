@@ -1,22 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Sidebar } from './Sidebar';
 import { RankProgressBar } from './RankProgressBar';
-import { loadProgress, type Joho2Progress } from '@/lib/joho2Store';
+import { useProgress } from '@/lib/progress/ProgressProvider';
 
 interface AppShellProps {
   children: React.ReactNode;
-  refreshKey?: number;
 }
 
-export function AppShell({ children, refreshKey }: AppShellProps) {
-  const [progress, setProgress] = useState<Joho2Progress | null>(null);
+export function AppShell({ children }: AppShellProps) {
+  const { progress } = useProgress();
   const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    setProgress(loadProgress());
-  }, [refreshKey]);
 
   const xp = progress?.xp ?? 0;
 

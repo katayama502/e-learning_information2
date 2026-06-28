@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { CheckCircle2, XCircle, Award, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { PythonEditor } from './PythonEditor';
 import { usePyodide } from '@/hooks/usePyodide';
-import { recordAttempt } from '@/lib/joho2Store';
+import { useProgress } from '@/lib/progress/ProgressProvider';
+import { PASS_THRESHOLD } from '@/lib/joho2Store';
 import type { Question } from '@/data/joho2-lessons';
 
 interface AttemptResult {
@@ -104,19 +105,21 @@ interface TestComponentProps {
   questions: Question[];
   materialId: string;
   starterCode?: string;
-  onPassed?: () => void;
 }
 
-export function TestComponent({ questions, materialId, starterCode = '', onPassed }: TestComponentProps) {
+export function TestComponent({ questions, materialId, starterCode = '' }: TestComponentProps) {
+  const { recordAttempt } = useProgress();
   const [open, setOpen] = useState(false);
   const [choiceAnswers, setChoiceAnswers] = useState<Record<string, number | null>>({});
   const [codeResults, setCodeResults] = useState<Record<string, { passed: boolean; output: string }>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [grading, setGrading] = useState(false);
   const [result, setResult] = useState<AttemptResult | null>(null);
 
   if (questions.length === 0) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (grading) return;
     let score = 0;
     let maxScore = 0;
 
@@ -129,12 +132,15 @@ export function TestComponent({ questions, materialId, starterCode = '', onPasse
       }
     }
 
-    const passed = maxScore > 0 ? score / maxScore >= 0.6 : true;
-    const { xp_earned, perfect_bonus } = recordAttempt(materialId, score, maxScore, passed);
-
-    setResult({ score, max_score: maxScore, passed, xp_earned, perfect_bonus });
-    setSubmitted(true);
-    if (passed) onPassed?.();
+    const passed = maxScore > 0 ? score / maxScore >= PASS_THRESHOLD : true;
+    setGrading(true);
+    try {
+      const { xp_earned, perfect_bonus } = await recordAttempt(materialId, score, maxScore, passed);
+      setResult({ score, max_score: maxScore, passed, xp_earned, perfect_bonus });
+      setSubmitted(true);
+    } finally {
+      setGrading(false);
+    }
   };
 
   return (
@@ -181,10 +187,11 @@ export function TestComponent({ questions, materialId, starterCode = '', onPasse
           {!submitted ? (
             <button
               onClick={handleSubmit}
-              className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-black py-3 rounded-xl transition-all"
+              disabled={grading}
+              className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-black py-3 rounded-xl transition-all"
             >
-              <Award size={18} />
-              採点する
+              {grading ? <Loader2 size={18} className="animate-spin" /> : <Award size={18} />}
+              {grading ? '採点中...' : '採点する'}
             </button>
           ) : result ? (
             <div className={`rounded-xl p-4 ${result.passed ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'}`}>

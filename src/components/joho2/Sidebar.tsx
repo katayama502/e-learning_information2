@@ -6,9 +6,12 @@ import { usePathname } from 'next/navigation';
 import {
   Home, ChevronDown, ChevronRight, CheckCircle2, PlayCircle,
   Code2, Zap, Star, ArrowRight, BookOpen, PanelLeftClose, PanelLeftOpen,
+  ShieldCheck, LogOut,
 } from 'lucide-react';
-import { JOHO2_UNITS } from '@/data/joho2-lessons';
+import { useCurriculum } from '@/lib/curriculum/CurriculumProvider';
+import { useAuth } from '@/lib/auth/AuthProvider';
 import { type Joho2Progress } from '@/lib/joho2Store';
+import type { Unit } from '@/lib/curriculum/types';
 
 interface SidebarProps {
   progress: Joho2Progress | null;
@@ -17,19 +20,28 @@ interface SidebarProps {
   onNavigate?: () => void; // ドロワーモード時に閉じるコールバック
 }
 
-function getNextLesson(progress: Joho2Progress | null) {
-  const allMaterials = JOHO2_UNITS.flatMap((u) => u.materials);
+function getNextLesson(units: Unit[], progress: Joho2Progress | null) {
+  const allMaterials = units.flatMap((u) => u.materials);
   const passed = new Set(progress?.passedLessons ?? []);
   return allMaterials.find((m) => !passed.has(m.id)) ?? allMaterials[0];
 }
 
 export function Sidebar({ progress, collapsed, onToggle, onNavigate }: SidebarProps) {
   const pathname = usePathname();
-  const [openUnits, setOpenUnits] = useState<Set<string>>(
-    () => new Set(JOHO2_UNITS.map((u) => u.id))
-  );
+  const { units } = useCurriculum();
+  const { profile, isAdmin, logout } = useAuth();
+  const [openUnits, setOpenUnits] = useState<Set<string>>(new Set());
 
-  const nextLesson = getNextLesson(progress);
+  // ユニットが読み込まれたら全て開く（初回のみ）
+  const [initialized, setInitialized] = useState(false);
+  React.useEffect(() => {
+    if (!initialized && units.length > 0) {
+      setOpenUnits(new Set(units.map((u) => u.id)));
+      setInitialized(true);
+    }
+  }, [units, initialized]);
+
+  const nextLesson = getNextLesson(units, progress);
   const xp = progress?.xp ?? 0;
   const rank = progress?.rank ?? 'ビギナー';
 
@@ -91,10 +103,22 @@ export function Sidebar({ progress, collapsed, onToggle, onNavigate }: SidebarPr
               <PlayCircle size={16} />
             </Link>
           )}
+          {isAdmin && (
+            <Link href="/admin" className="p-2 rounded-lg hover:bg-white/10 text-amber-400" title="管理ボード">
+              <ShieldCheck size={16} />
+            </Link>
+          )}
+          <button
+            onClick={() => logout()}
+            className="mt-auto mb-3 p-2 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white"
+            title="ログアウト"
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       ) : (
         /* Full sidebar */
-        <div className="flex-1 overflow-y-auto scrollbar-thin">
+        <div className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
           {/* Rank badge */}
           <div className="mx-3 mt-3 mb-2 rounded-xl bg-white/5 border border-white/10 px-3 py-2.5">
             <div className="flex items-center justify-between">
@@ -123,6 +147,17 @@ export function Sidebar({ progress, collapsed, onToggle, onNavigate }: SidebarPr
             ホーム
           </Link>
 
+          {/* Admin link */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="flex items-center gap-2.5 mx-2 mt-1 px-3 py-2 rounded-xl text-sm font-bold text-amber-300 hover:bg-amber-500/10 transition-colors"
+            >
+              <ShieldCheck size={15} />
+              管理ボード
+            </Link>
+          )}
+
           {/* Next lesson CTA */}
           {nextLesson && (
             <div className="mx-3 mt-3 mb-1">
@@ -148,7 +183,7 @@ export function Sidebar({ progress, collapsed, onToggle, onNavigate }: SidebarPr
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1.5 px-4">
               コース一覧
             </p>
-            {JOHO2_UNITS.map((unit) => {
+            {units.map((unit) => {
               const unitOpen = openUnits.has(unit.id);
               const passedInUnit = unit.materials.filter(
                 (m) => progress?.passedLessons.includes(m.id)
@@ -206,6 +241,25 @@ export function Sidebar({ progress, collapsed, onToggle, onNavigate }: SidebarPr
                 </div>
               );
             })}
+          </div>
+
+          {/* User footer */}
+          <div className="mt-auto border-t border-white/10 p-3">
+            <div className="flex items-center gap-2 mb-2 px-1">
+              <div className="w-7 h-7 rounded-full bg-purple-600 flex items-center justify-center text-xs font-black shrink-0">
+                {(profile?.displayName || profile?.email || '?').charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-slate-200 truncate">{profile?.displayName || 'ユーザー'}</p>
+                <p className="text-[10px] text-slate-500 truncate">{profile?.email}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => logout()}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-300 transition-colors"
+            >
+              <LogOut size={13} /> ログアウト
+            </button>
           </div>
         </div>
       )}
