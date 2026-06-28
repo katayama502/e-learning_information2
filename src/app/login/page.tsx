@@ -7,7 +7,7 @@ import { useAuth } from '@/lib/auth/AuthProvider';
 import { isFirebaseConfigured } from '@/lib/firebase/client';
 
 export default function LoginPage() {
-  const { user, profile, loading, isAdmin, logout } = useAuth();
+  const { user, profile, loading, profileLoading, isAdmin, logout } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,11 +18,18 @@ export default function LoginPage() {
 
   // ログイン済みなら適切なページへ
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || profileLoading || !user) return;
     if (profile && !profile.disabled) {
       router.replace(isAdmin ? '/admin' : '/joho2');
+      return;
     }
-  }, [loading, user, profile, isAdmin, router]);
+    // Auth は通ったが Firestore プロフィールが無い → エラー表示
+    setError(
+      profile?.disabled
+        ? 'このアカウントは無効化されています。管理者にお問い合わせください。'
+        : 'アカウント情報が見つかりません。Firestoreに users/{uid} ドキュメントを登録してください。'
+    );
+  }, [loading, profileLoading, user, profile, isAdmin, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,11 +113,11 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={submitting || !isFirebaseConfigured}
+            disabled={submitting || profileLoading || !isFirebaseConfigured}
             className="w-full flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-black py-3 rounded-xl transition-all"
           >
-            {submitting ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
-            {submitting ? 'ログイン中...' : 'ログイン'}
+            {(submitting || profileLoading) ? <Loader2 size={18} className="animate-spin" /> : <LogIn size={18} />}
+            {submitting ? 'ログイン中...' : profileLoading ? 'アカウント確認中...' : 'ログイン'}
           </button>
 
           <p className="text-[11px] text-slate-400 text-center leading-relaxed">

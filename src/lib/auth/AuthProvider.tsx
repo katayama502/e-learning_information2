@@ -27,7 +27,10 @@ export interface UserProfile {
 interface AuthContextValue {
   user: User | null;
   profile: UserProfile | null;
+  /** 初期認証チェック中 */
   loading: boolean;
+  /** Firestore プロフィール取得中（ログイン直後の非同期フェッチ） */
+  profileLoading: boolean;
   isAdmin: boolean;
   /** 管理者が登録した有効ユーザーか（学習ページに入れるか） */
   isAllowed: boolean;
@@ -56,6 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
@@ -65,10 +69,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
+        setProfileLoading(true);
         try {
           setProfile(await fetchProfile(u));
         } catch {
           setProfile(null);
+        } finally {
+          setProfileLoading(false);
         }
       } else {
         setProfile(null);
@@ -99,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, profile, loading, isAdmin, isAllowed, login, logout, getIdToken, refreshProfile }}
+      value={{ user, profile, loading, profileLoading, isAdmin, isAllowed, login, logout, getIdToken, refreshProfile }}
     >
       {children}
     </AuthContext.Provider>
