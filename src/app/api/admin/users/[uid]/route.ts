@@ -20,8 +20,12 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ uid: s
       docUpdate.displayName = body.displayName.trim();
     }
     if (body.role === 'admin' || body.role === 'student') {
+      // 自分自身を admin→student に降格すると全管理者がロックアウトされる可能性
+      if (uid === admin.uid && body.role === 'student') {
+        return NextResponse.json({ error: '自分自身の管理者権限を削除することはできません' }, { status: 400 });
+      }
       docUpdate.role = body.role;
-      await adminAuth().setCustomUserClaims(uid, { admin: body.role === 'admin' });
+      // Firestoreを先に書き込み、失敗時はカスタムクレームが変更されないようにする
     }
     if (typeof body.disabled === 'boolean') {
       // 自分自身は無効化できない
@@ -38,11 +42,15 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ uid: s
       authUpdate.password = body.password;
     }
 
+    // Firestore を先に更新してから Auth / カスタムクレームを更新（失敗時の権限昇格を防ぐ）
+    if (Object.keys(docUpdate).length > 0) {
+      await adminDb().collection('users').doc(uid).set(docUpdate, { merge: true });
+    }
     if (Object.keys(authUpdate).length > 0) {
       await adminAuth().updateUser(uid, authUpdate);
     }
-    if (Object.keys(docUpdate).length > 0) {
-      await adminDb().collection('users').doc(uid).set(docUpdate, { merge: true });
+    if (docUpdate.role !== undefined) {
+      await adminAuth().setCustomUserClaims(uid, { admin: docUpdate.role === 'admin' });
     }
 
     return NextResponse.json({ ok: true });
@@ -60,9 +68,14 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ uid: 
       return NextResponse.json({ error: '自分自身を削除することはできません' }, { status: 400 });
     }
 
-    await adminAuth().deleteUser(uid).catch(() => {/* 既に存在しない場合は無視 */});
-    await adminDb().collection('users').doc(uid).delete().catch(() => {});
-    await adminDb().collection('progress').doc(uid).delete().catch(() => {});
+    // Auth ユーザーの削除はクリティカル（失敗は呼び出し元に伝える）
+    await adminAuth().deleteUser(uid).catch((e) => {
+      const code = (e as { code?: string })?.code ?? '';
+      if (code !== 'auth/user-not-found') throw e; // 既に存在しない場合のみ無視
+    });
+    // Firestore のクリーンアップ失敗はログのみ（孤立ドキュメントは許容）
+    await adminDb().collection('users').doc(uid).delete().catch((e) => console.error('[DELETE] users doc:', e));
+    await adminDb().collection('progress').doc(uid).delete().catch((e) => console.error('[DELETE] progress doc:', e));
 
     return NextResponse.json({ ok: true });
   } catch (e) {

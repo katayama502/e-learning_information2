@@ -19,7 +19,10 @@ function getAdminApp(): App {
   const projectId = process.env.FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   // Netlify等では改行が \n 文字として保存されるため復元する
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  // Netlify等では改行が \n 文字として保存されるため復元する。
+  // 環境変数をダブルクォートで囲んだまま貼り付けた場合の前後クォートも除去する。
+  const rawKey = process.env.FIREBASE_PRIVATE_KEY ?? '';
+  const privateKey = rawKey.replace(/^"([\s\S]*)"$/, '$1').replace(/\\n/g, '\n');
 
   if (!projectId || !clientEmail || !privateKey) {
     throw new Error(

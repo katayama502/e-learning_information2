@@ -126,8 +126,8 @@ export default function LoginPage() {
           </p>
         </form>
 
-        {/* 既にログイン済みだが権限が無い場合の導線 */}
-        {user && profile?.disabled && (
+        {/* ログイン済みだがアクセス不可の場合の導線（profile なし・無効化）*/}
+        {user && (profile === null || profile?.disabled) && !profileLoading && (
           <button
             onClick={() => logout()}
             className="w-full mt-3 text-xs text-purple-200 underline"

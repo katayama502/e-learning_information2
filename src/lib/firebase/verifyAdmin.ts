@@ -31,8 +31,9 @@ export async function requireAdmin(req: Request): Promise<AdminContext> {
 
   let decoded;
   try {
-    decoded = await adminAuth().verifyIdToken(token);
-  } catch {
+    decoded = await adminAuth().verifyIdToken(token, true); // checkRevoked=true で失効トークンを即時拒否
+  } catch (e) {
+    console.error('[verifyAdmin] verifyIdToken failed:', e);
     throw new AuthError('認証トークンが無効です', 401);
   }
 

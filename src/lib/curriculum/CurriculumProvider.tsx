@@ -11,6 +11,7 @@ import type { Unit } from './types';
 interface CurriculumContextValue {
   units: Unit[];
   loading: boolean;
+  error: string | null;
   findMaterial: (materialId: string) => ReturnType<typeof findMaterialInUnits>;
 }
 
@@ -19,19 +20,24 @@ const CurriculumContext = createContext<CurriculumContextValue | undefined>(unde
 export function CurriculumProvider({ children }: { children: React.ReactNode }) {
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = subscribeCurriculum((u) => {
-      setUnits(u);
-      setLoading(false);
-    });
+    const unsub = subscribeCurriculum(
+      (u) => { setUnits(u); setLoading(false); },
+      (err) => {
+        console.error('[CurriculumProvider]', err);
+        setError('カリキュラムの読み込みに失敗しました');
+        setLoading(false);
+      },
+    );
     return () => unsub();
   }, []);
 
   const findMaterial = (materialId: string) => findMaterialInUnits(units, materialId);
 
   return (
-    <CurriculumContext.Provider value={{ units, loading, findMaterial }}>
+    <CurriculumContext.Provider value={{ units, loading, error, findMaterial }}>
       {children}
     </CurriculumContext.Provider>
   );

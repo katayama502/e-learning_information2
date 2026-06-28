@@ -35,9 +35,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [progress, setProgress] = useState<Joho2Progress | null>(null);
   const [loading, setLoading] = useState(true);
   const progressRef = useRef<Joho2Progress | null>(null);
-
-  // 最新状態を ref に保持（コールバックから参照するため）
-  useEffect(() => { progressRef.current = progress; }, [progress]);
+  // ref はレンダー後の useEffect ではなく書き込み時に即時更新する（→ persist内で管理）
 
   useEffect(() => {
     if (!user) { setProgress(null); setLoading(false); return; }
@@ -46,22 +44,36 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     const unsub = onSnapshot(
       ref,
       (snap) => {
-        if (snap.exists()) {
-          setProgress({ ...defaultProgress(), ...(snap.data() as Partial<Joho2Progress>) });
-        } else {
-          setProgress(defaultProgress());
-        }
+        const next = snap.exists()
+          ? { ...defaultProgress(), ...(snap.data() as Partial<Joho2Progress>) }
+          : defaultProgress();
+        progressRef.current = next;
+        setProgress(next);
         setLoading(false);
       },
-      () => { setProgress(defaultProgress()); setLoading(false); },
+      (err) => {
+        // トランジェント読み取りエラー: 既存の進捗を保持し loading のみ解除
+        console.error('[ProgressProvider] onSnapshot error:', err);
+        setLoading(false);
+      },
     );
     return () => unsub();
   }, [user]);
 
   const persist = useCallback(async (next: Joho2Progress) => {
     if (!user) return;
-    setProgress(next); // 楽観的更新
-    await setDoc(doc(db, 'progress', user.uid), next, { merge: true });
+    const prev = progressRef.current;
+    progressRef.current = next; // 並列呼出し用に ref を即時更新
+    setProgress(next);
+    try {
+      await setDoc(doc(db, 'progress', user.uid), next, { merge: true });
+    } catch (err) {
+      // 書き込み失敗時はロールバック
+      console.error('[ProgressProvider] persist failed:', err);
+      progressRef.current = prev;
+      setProgress(prev);
+      throw err; // 呼び出し元でエラー表示できるよう再スロー
+    }
   }, [user]);
 
   const markSlideRead = useCallback(async (materialId: string) => {

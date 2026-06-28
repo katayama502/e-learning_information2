@@ -64,7 +64,10 @@ export async function loadCurriculum(): Promise<Unit[]> {
 }
 
 // ---- リアルタイム購読（管理ボードの即時反映用）----
-export function subscribeCurriculum(cb: (units: Unit[]) => void): () => void {
+export function subscribeCurriculum(
+  cb: (units: Unit[]) => void,
+  onError?: (err: Error) => void,
+): () => void {
   let latestUnits: { id: string; data: Record<string, unknown> }[] = [];
   let latestMats: { id: string; data: Record<string, unknown> }[] = [];
   let haveUnits = false;
@@ -74,16 +77,18 @@ export function subscribeCurriculum(cb: (units: Unit[]) => void): () => void {
     if (haveUnits && haveMats) cb(assemble(latestUnits, latestMats));
   };
 
-  const unsubU = onSnapshot(collection(db, UNITS), (snap) => {
-    latestUnits = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
-    haveUnits = true;
-    emit();
-  });
-  const unsubM = onSnapshot(collection(db, MATERIALS), (snap) => {
-    latestMats = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
-    haveMats = true;
-    emit();
-  });
+  const handleError = (err: Error) => {
+    console.error('[subscribeCurriculum] snapshot error:', err);
+    onError?.(err);
+  };
+  const unsubU = onSnapshot(collection(db, UNITS),
+    (snap) => { latestUnits = snap.docs.map((d) => ({ id: d.id, data: d.data() })); haveUnits = true; emit(); },
+    handleError,
+  );
+  const unsubM = onSnapshot(collection(db, MATERIALS),
+    (snap) => { latestMats = snap.docs.map((d) => ({ id: d.id, data: d.data() })); haveMats = true; emit(); },
+    handleError,
+  );
 
   return () => { unsubU(); unsubM(); };
 }

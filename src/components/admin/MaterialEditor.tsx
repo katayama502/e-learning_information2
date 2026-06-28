@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { X, Plus, Trash2, Loader2, Check, ListChecks, Code2 } from 'lucide-react';
 import { createMaterial, updateMaterial } from '@/lib/curriculum/firestore';
@@ -29,6 +29,15 @@ export function MaterialEditor({ unitId, material, defaultOrder, onClose, onSave
   const [questions, setQuestions] = useState<Question[]>(material?.questions ?? []);
   const [busy, setBusy] = useState(false);
 
+  // モーダルが別の教材に切り替わったときにフォームを同期する
+  useEffect(() => {
+    setTitle(material?.title ?? '');
+    setSlideRef(material?.slide_ref ?? '');
+    setStarterCode(material?.starter_code ?? '');
+    setOrder(material?.order ?? defaultOrder);
+    setQuestions(material?.questions ?? []);
+  }, [material?.id]);
+
   const addChoiceQuestion = () => {
     setQuestions((qs) => [
       ...qs,
@@ -54,8 +63,11 @@ export function MaterialEditor({ unitId, material, defaultOrder, onClose, onSave
     // バリデーション
     for (const q of questions) {
       if (!q.prompt.trim()) { toast.error('すべての問題に設問文を入力してください'); return; }
-      if (q.type === 'choice' && (q.choices ?? []).filter((c) => c.trim()).length < 2) {
-        toast.error('選択問題には2つ以上の選択肢が必要です'); return;
+      if (q.type === 'choice') {
+        const filled = (q.choices ?? []).filter((c) => c.trim());
+        if (filled.length < 2) { toast.error('選択問題には2つ以上の選択肢が必要です'); return; }
+        const correctChoice = (q.choices ?? [])[q.correct ?? 0];
+        if (!correctChoice?.trim()) { toast.error('正解に空の選択肢が設定されています'); return; }
       }
     }
 
@@ -105,7 +117,7 @@ export function MaterialEditor({ unitId, material, defaultOrder, onClose, onSave
             </div>
             <div>
               <label className="lbl">表示順</label>
-              <input type="number" className="inp" value={order} onChange={(e) => setOrder(Number(e.target.value))} />
+              <input type="number" min={1} className="inp" value={order} onChange={(e) => { const v = parseInt(e.target.value, 10); setOrder(isNaN(v) || v < 1 ? 1 : v); }} />
             </div>
           </div>
 

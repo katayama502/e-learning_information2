@@ -66,21 +66,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
       return;
     }
+    let generation = 0; // 複数発火時に古い fetchProfile の結果を破棄する
     const unsub = onAuthStateChanged(auth, async (u) => {
+      const myGen = ++generation;
       setUser(u);
       if (u) {
         setProfileLoading(true);
         try {
-          setProfile(await fetchProfile(u));
+          const p = await fetchProfile(u);
+          if (myGen !== generation) return; // 後続コールバックがすでに走っている場合は破棄
+          setProfile(p);
         } catch {
+          if (myGen !== generation) return;
           setProfile(null);
         } finally {
-          setProfileLoading(false);
+          if (myGen === generation) setProfileLoading(false);
         }
       } else {
         setProfile(null);
       }
-      setLoading(false);
+      if (myGen === generation) setLoading(false);
     });
     return () => unsub();
   }, []);

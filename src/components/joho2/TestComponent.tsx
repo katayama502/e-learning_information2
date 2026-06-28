@@ -138,6 +138,10 @@ export function TestComponent({ questions, materialId, starterCode = '' }: TestC
       const { xp_earned, perfect_bonus } = await recordAttempt(materialId, score, maxScore, passed);
       setResult({ score, max_score: maxScore, passed, xp_earned, perfect_bonus });
       setSubmitted(true);
+    } catch {
+      // Firestore 書き込み失敗（オフライン・権限エラー等）
+      setResult({ score, max_score: maxScore, passed, xp_earned: 0, perfect_bonus: 0 });
+      setSubmitted(true); // 採点結果は表示するが XP は 0 扱い
     } finally {
       setGrading(false);
     }

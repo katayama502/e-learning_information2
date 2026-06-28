@@ -28,7 +28,7 @@ export function RequireAuth({
   children: React.ReactNode;
   requireAdmin?: boolean;
 }) {
-  const { user, profile, loading, isAdmin, isAllowed, logout } = useAuth();
+  const { user, profile, loading, profileLoading, isAdmin, isAllowed, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export function RequireAuth({
     );
   }
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <FullScreen>
         <Loader2 size={32} className="animate-spin text-purple-600" />
