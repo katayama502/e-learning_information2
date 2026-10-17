@@ -47,3 +47,6 @@ next-env.d.ts
 *.webm
 public/videos/
 tmp_thumbnails/
+
+# Claude Code（個人のローカル設定。コミットしない）
+.claude/settings.local.json
